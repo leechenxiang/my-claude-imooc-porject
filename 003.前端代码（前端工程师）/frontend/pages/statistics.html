@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>统计 - 财务管家</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #FFF9F5;
+    }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+
+    .header-gradient {
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%) !important;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(255, 183, 197, 0.15);
+    }
+
+    .btn-export {
+      width: 100%;
+      padding: 14px;
+      background: white;
+      border: 2px solid #FFB7C5;
+      border-radius: 12px;
+      color: #FF8FA3;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-export:hover {
+      background: #FFF0F3;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #8E8E8E;
+    }
+
+    .nav-item.active {
+      background: #FFF0F3;
+      color: #FF8FA3;
+    }
+
+    .fab-button {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(255, 143, 163, 0.4);
+      z-index: 100;
+    }
+
+    .fab-button:hover {
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 12px 28px rgba(255, 143, 163, 0.45);
+    }
+  </style>
+</head>
+<body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 10px;">
+  <!-- 顶部 -->
+  <div class="header-gradient pt-6 pb-10 px-5 rounded-b-2xl">
+    <div style="color: white; display: flex; align-items: center;">
+      <span style="font-size: 20px; font-weight: 600;">统计分析</span>
+    </div>
+  </div>
+
+  <div style="padding: 20px; margin-top: 0px;">
+    <!-- 本月概览 -->
+    <div class="card" style="display: flex; justify-content: space-around; text-align: center; margin-bottom: 16px;">
+      <div>
+        <p style="font-size: 12px; color: #8E8E8E;">收入</p>
+        <p style="font-size: 18px; font-weight: 700; color: #7DD3C0;">¥12,000</p>
+      </div>
+      <div>
+        <p style="font-size: 12px; color: #8E8E8E;">支出</p>
+        <p style="font-size: 18px; font-weight: 700; color: #FFA09B;">¥8,500</p>
+      </div>
+      <div>
+        <p style="font-size: 12px; color: #8E8E8E;">结余</p>
+        <p style="font-size: 18px; font-weight: 700; color: #FF8FA3;">¥3,500</p>
+      </div>
+    </div>
+
+    <!-- 支出分类饼图 -->
+    <div class="card" style="margin-bottom: 16px;">
+      <h3 style="font-size: 16px; font-weight: 600; color: #1B1C1C; margin-bottom: 16px;">支出分类</h3>
+      <div style="height: 180px; width: 100%;">
+        <canvas id="expenseChart" style="width: 100%; height: 100%;"></canvas>
+      </div>
+    </div>
+
+    <!-- 趋势图 -->
+    <div class="card" style="margin-bottom: 16px;">
+      <h3 style="font-size: 16px; font-weight: 600; color: #1B1C1C; margin-bottom: 16px;">收支趋势</h3>
+      <div style="height: 180px; width: 100%;">
+        <canvas id="trendChart" style="width: 100%; height: 100%;"></canvas>
+      </div>
+    </div>
+
+    <!-- 导出按钮 -->
+    <button class="btn-export">
+      📥 导出Excel
+    </button>
+  </div>
+
+  <!-- 悬浮按钮 -->
+  <a href="add_record.html" class="fab-button">
+    <svg t="1777462897685" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1642" width="24" height="24"><path d="M612.37248 411.62752V30.208h-200.74496v381.41952H30.208v200.74496h381.41952v381.41952h200.74496V612.37248h381.41952v-200.74496z" p-id="1643" fill="#ffffff"></path></svg>
+  </a>
+
+  <!-- 底部导航 -->
+  <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #EFEDED; display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: 24px; z-index: 50;">
+    <a href="dashboard.html" class="nav-item">
+      <span>首页</span>
+    </a>
+    <a href="statistics.html" class="nav-item active">
+      <span>统计</span>
+    </a>
+    <div style="width: 56px;"></div>
+    <a href="transaction_history.html" class="nav-item">
+      <span>明细</span>
+    </a>
+    <a href="settings.html" class="nav-item">
+      <span>设置</span>
+    </a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 支出分类饼图
+      const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+      new Chart(expenseCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['餐饮', '购物', '交通', '娱乐', '其他'],
+          datasets: [{
+            data: [2500, 2000, 1200, 1500, 1300],
+            backgroundColor: ['#FFD93D', '#FF6B6B', '#6BCB77', '#C9B8E8', '#A0A0A0'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 12 } } } }
+        }
+      });
+
+      // 趋势图
+      const trendCtx = document.getElementById('trendChart').getContext('2d');
+      new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月', '2月', '3月', '4月'],
+          datasets: [
+            { label: '收入', data: [10000, 12000, 11000, 12000], borderColor: '#7DD3C0', fill: true, backgroundColor: 'rgba(125, 211, 192, 0.1)', tension: 0.4 },
+            { label: '支出', data: [8000, 9000, 7500, 8500], borderColor: '#FFA09B', fill: true, backgroundColor: 'rgba(255, 160, 155, 0.1)', tension: 0.4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

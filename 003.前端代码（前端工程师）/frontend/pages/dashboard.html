@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页 - 财务管家</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #FFF9F5;
+    }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+
+    /* 顶部渐变区域 - 强制颜色 */
+    .header-gradient {
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%) !important;
+    }
+
+    /* 卡片样式 */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(255, 183, 197, 0.15);
+    }
+
+    /* 分类项 */
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #FFF0F3;
+      border-radius: 12px;
+    }
+
+    /* 记账项 */
+    .transaction-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #EFEDED;
+    }
+
+    .transaction-item:last-child {
+      border-bottom: none;
+    }
+
+    /* 底部导航项 */
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item.active {
+      background: #FFF0F3;
+      color: #FF8FA3;
+    }
+
+    .nav-item:not(.active) {
+      color: #8E8E8E;
+    }
+
+    /* 悬浮按钮 */
+    .fab-button {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(255, 143, 163, 0.4);
+      z-index: 100;
+    }
+
+    .fab-button:hover {
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 12px 28px rgba(255, 143, 163, 0.45);
+    }
+  </style>
+</head>
+<body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 90px;">
+  <!-- 顶部渐变区域 -->
+  <div class="header-gradient pt-6 pb-12 px-5 rounded-b-3xl relative overflow-hidden">
+    <!-- 装饰圆 -->
+    <div style="position: absolute; top: -50px; right: -30px; width: 200px; height: 200px; background: rgba(255,255,255,0.3); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -30px; left: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.2); border-radius: 50%;"></div>
+
+    <!-- 标题 -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px;">
+          财务管家
+        </h1>
+        <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 4px;">2026年4月</p>
+      </div>
+    </div>
+
+    <!-- 概览卡片 -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+      <div class="card">
+        <p style="font-size: 12px; color: #8E8E8E;">本月收入</p>
+        <p style="font-size: 20px; font-weight: 700; color: #7DD3C0;">¥12,000</p>
+      </div>
+      <div class="card">
+        <p style="font-size: 12px; color: #8E8E8E;">本月支出</p>
+        <p style="font-size: 20px; font-weight: 700; color: #FFA09B;">¥8,500</p>
+      </div>
+      <div class="card" style="grid-column: span 2;">
+        <p style="font-size: 12px; color: #8E8E8E;">本月结余</p>
+        <p style="font-size: 24px; font-weight: 700; color: #FF8FA3;">¥3,500</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分类汇总 -->
+  <div style="padding: 0 20px; margin-top: 24px;">
+    <h2 style="font-size: 18px; font-weight: 600; color: #1B1C1C; margin-bottom: 12px;">分类支出</h2>
+    <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="category-item">
+        <span style="font-size: 20px;">🍚</span>
+        <span style="flex: 1; font-size: 14px;">餐饮</span>
+        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥2,500</span>
+      </div>
+      <div class="category-item">
+        <span style="font-size: 20px;">🛒</span>
+        <span style="flex: 1; font-size: 14px;">购物</span>
+        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥2,000</span>
+      </div>
+      <div class="category-item">
+        <span style="font-size: 20px;">🚗</span>
+        <span style="flex: 1; font-size: 14px;">交通</span>
+        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥1,200</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 最近记账 -->
+  <div style="padding: 0 20px; margin-top: 24px;">
+    <h2 style="font-size: 18px; font-weight: 600; color: #1B1C1C; margin-bottom: 12px;">最近记账</h2>
+    <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="transaction-item">
+        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🍚</span>
+        <div style="flex: 1;">
+          <p style="font-size: 14px; font-weight: 500;">餐饮</p>
+          <p style="font-size: 12px; color: #8E8E8E;">4/29</p>
+        </div>
+        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥58</span>
+      </div>
+      <div class="transaction-item">
+        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🚗</span>
+        <div style="flex: 1;">
+          <p style="font-size: 14px; font-weight: 500;">交通</p>
+          <p style="font-size: 12px; color: #8E8E8E;">4/28</p>
+        </div>
+        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥26</span>
+      </div>
+      <div class="transaction-item">
+        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🛒</span>
+        <div style="flex: 1;">
+          <p style="font-size: 14px; font-weight: 500;">购物</p>
+          <p style="font-size: 12px; color: #8E8E8E;">4/27</p>
+        </div>
+        <span style="font-size: 14px; font-weight: 600; color: #7DD3C0;">+¥199</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 悬浮按钮 -->
+  <a href="add_record.html" class="fab-button">
+    <svg t="1777462897685" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1642" width="24" height="24"><path d="M612.37248 411.62752V30.208h-200.74496v381.41952H30.208v200.74496h381.41952v381.41952h200.74496V612.37248h381.41952v-200.74496z" p-id="1643" fill="#ffffff"></path></svg>
+  </a>
+
+  <!-- 底部导航 -->
+  <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #EFEDED; display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: 24px; z-index: 50;">
+    <a href="dashboard.html" class="nav-item active">
+      <span>首页</span>
+    </a>
+    <a href="statistics.html" class="nav-item">
+      <span>统计</span>
+    </a>
+    <div style="width: 56px;"></div>
+    <a href="transaction_history.html" class="nav-item">
+      <span>明细</span>
+    </a>
+    <a href="settings.html" class="nav-item">
+      <span>设置</span>
+    </a>
+  </nav>
+</body>
+</html>

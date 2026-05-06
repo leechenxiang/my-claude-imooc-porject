@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Steward - 记账</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7b4551",
+                        "surface-dim": "#dbd9d9",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#62547e",
+                        "on-surface-variant": "#514345",
+                        "surface-container-highest": "#e4e2e2",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#fbb3c1",
+                        "on-primary-fixed-variant": "#6b3743",
+                        "inverse-primary": "#fbb3c1",
+                        "inverse-surface": "#303030",
+                        "surface-bright": "#fbf9f8",
+                        "primary-fixed": "#ffd9df",
+                        "secondary-fixed": "#eaddff",
+                        "surface-container-low": "#f5f3f3",
+                        "on-tertiary-container": "#8f364a",
+                        "tertiary-fixed-dim": "#ffb2bd",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary-fixed-variant": "#7d283c",
+                        "surface-variant": "#e4e2e2",
+                        "tertiary": "#9b4053",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#655781",
+                        "surface-container": "#efeded",
+                        "primary-container": "#ffb7c5",
+                        "primary": "#864e5a",
+                        "on-secondary-fixed-variant": "#4d4068",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#d6c2c4",
+                        "inverse-on-surface": "#f2f0f0",
+                        "tertiary-container": "#ffb7c1",
+                        "surface": "#fbf9f8",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1b1c1c",
+                        "outline": "#837375",
+                        "on-tertiary-fixed": "#400014",
+                        "secondary-container": "#deccfd",
+                        "on-primary-fixed": "#360c19",
+                        "surface-tint": "#864e5a",
+                        "tertiary-fixed": "#ffd9dd",
+                        "on-secondary-fixed": "#21143a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "xxl": "48px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "margin": "20px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "price-display": ["Plus Jakarta Sans"],
+                        "h1": ["Plus Jakarta Sans"],
+                        "h3": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "price-display": ["28px", {"lineHeight": "1.1", "fontWeight": "700"}],
+                        "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #FFF9F5; }
+        .soft-card { background-color: #FFF0F3; box-shadow: 0 4px 20px -2px rgba(201, 184, 232, 0.15); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .gradient-button { background: linear-gradient(135deg, #fbb3c1 0%, #C9B8E8 100%); }
+        .inner-shadow-soft { box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] h-16 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-8 border-b border-rose-100/10 dark:border-slate-800">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-stone-500">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-lg font-black text-rose-500 font-h2">Steward</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex bg-surface-container-low px-4 py-2 rounded-full border border-rose-100/20 items-center gap-2">
+<span class="material-symbols-outlined text-stone-400">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-on-surface-variant" placeholder="搜索交易记录..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-stone-400 hover:text-rose-500 cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-stone-400 hover:text-rose-500 cursor-pointer">help_outline</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-rose-100/50">
+<img alt="用户头像" data-alt="close up of a friendly professional person with a warm smile in soft daylight studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSq9Fa8LfAMR6TR74M6PZHnH7A7MUiU81tVp47sp6SxB3wpcXq_9FBypNn2MeTCFsVoMvTRBVMsMEiyVY4UuDPk3w7lVySdcovIqHQhm1rgd4udt9oTUPfrCkicpTNqFohISu-uSQ1BU0GErP81DvXmQR_Z1UE1pICBYO-LWqImOtAFc9d5O-YwqFElyD1wYF-tsjnMIYiZogvwrdoTtkmv8Nw8lw6GtWraStUUBqla-qdW-bjGO_ZWrDA_Uz1ptdc1tQ4zpYIyIU"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Side Navigation Shell -->
+<aside class="hidden md:flex h-screen w-64 fixed left-0 top-0 border-r border-rose-100/20 dark:border-slate-800 bg-stone-50 dark:bg-slate-900 flex-col py-6 px-4 shadow-[4px_0_24px_rgba(201,184,232,0.05)] z-50">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 bg-rose-400 rounded-xl flex items-center justify-center text-white font-bold text-xl">S</div>
+<div>
+<h2 class="text-xl font-bold text-rose-400 tracking-tight font-h1">Steward</h2>
+<p class="text-xs text-stone-400 font-label-md">财务管家</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 p-3 rounded-xl text-stone-500 dark:text-slate-400 hover:text-rose-400 hover:bg-rose-50/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">首页</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-stone-500 dark:text-slate-400 hover:text-rose-400 hover:bg-rose-50/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">交易</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-stone-500 dark:text-slate-400 hover:text-rose-400 hover:bg-rose-50/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">统计</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-stone-500 dark:text-slate-400 hover:text-rose-400 hover:bg-rose-50/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">设置</span>
+</a>
+</nav>
+<button class="mt-auto gradient-button text-white rounded-xl py-3 px-4 font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+<span>快速记账</span>
+</button>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-10 md:ml-64 min-h-screen px-4 md:px-lg">
+<div class="max-w-4xl mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg mt-lg">
+<!-- Left Column: Form Controls -->
+<div class="lg:col-span-7 space-y-lg">
+<div class="soft-card p-xl rounded-2xl">
+<div class="flex items-center justify-between mb-xl">
+<h2 class="font-h2 text-h2 text-on-surface">新增账目</h2>
+<div class="flex bg-surface-container p-1 rounded-full border border-rose-100/30">
+<button class="px-6 py-2 rounded-full font-label-md text-sm transition-all bg-primary text-white shadow-md">支出</button>
+<button class="px-6 py-2 rounded-full font-label-md text-sm text-on-surface-variant hover:bg-white/50">收入</button>
+</div>
+</div>
+<!-- Amount Input Section -->
+<div class="mb-xl text-center">
+<label class="block font-label-md text-outline mb-2">金额</label>
+<div class="relative flex items-center justify-center">
+<span class="text-h1 font-black text-rose-300 absolute left-8">¥</span>
+<input class="w-full text-center text-[48px] font-price-display text-primary bg-transparent border-none focus:ring-0 placeholder:text-rose-100/50" placeholder="0.00" step="0.01" type="number"/>
+</div>
+</div>
+<!-- Category Grid -->
+<div class="mb-xl">
+<label class="block font-label-md text-outline mb-4 uppercase">选择分类</label>
+<div class="grid grid-cols-4 sm:grid-cols-5 gap-md">
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-2xl">restaurant</span>
+</div>
+<span class="text-xs font-medium text-primary">餐饮</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-stone-400 group-hover:text-rose-400 group-hover:bg-rose-50 transition-all border border-rose-100/50">
+<span class="material-symbols-outlined text-2xl">shopping_cart</span>
+</div>
+<span class="text-xs font-medium text-stone-500">购物</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-stone-400 group-hover:text-rose-400 group-hover:bg-rose-50 transition-all border border-rose-100/50">
+<span class="material-symbols-outlined text-2xl">directions_bus</span>
+</div>
+<span class="text-xs font-medium text-stone-500">交通</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-stone-400 group-hover:text-rose-400 group-hover:bg-rose-50 transition-all border border-rose-100/50">
+<span class="material-symbols-outlined text-2xl">home</span>
+</div>
+<span class="text-xs font-medium text-stone-500">房租</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-stone-400 group-hover:text-rose-400 group-hover:bg-rose-50 transition-all border border-rose-100/50">
+<span class="material-symbols-outlined text-2xl">movie</span>
+</div>
+<span class="text-xs font-medium text-stone-500">娱乐</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-stone-400 group-hover:text-rose-400 group-hover:bg-rose-50 transition-all border border-rose-100/50">
+<span class="material-symbols-outlined text-2xl">medical_services</span>
+</div>
+<span class="text-xs font-medium text-stone-500">医疗</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-stone-400 group-hover:text-rose-400 group-hover:bg-rose-50 transition-all border border-rose-100/50">
+<span class="material-symbols-outlined text-2xl">payments</span>
+</div>
+<span class="text-xs font-medium text-stone-500">账单</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-white/50 flex items-center justify-center text-stone-300 border border-dashed border-stone-200">
+<span class="material-symbols-outlined text-2xl">add</span>
+</div>
+<span class="text-xs font-medium text-stone-400">更多</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Details & Metadata -->
+<div class="lg:col-span-5 space-y-lg">
+<div class="soft-card p-xl rounded-2xl flex flex-col h-full">
+<h3 class="font-h3 text-h3 mb-lg text-on-surface">账目详情</h3>
+<div class="space-y-md flex-1">
+<!-- Account Selector -->
+<div>
+<label class="block font-label-md text-outline mb-2">支付账户</label>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-4 bg-white rounded-xl border border-rose-100/50 cursor-pointer hover:border-rose-300 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-500">account_balance_wallet</span>
+</div>
+<span class="font-medium">微信支付</span>
+</div>
+<span class="material-symbols-outlined text-rose-400" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-transparent cursor-pointer hover:bg-white hover:border-rose-100 transition-colors">
+<div class="flex items-center gap-3 opacity-60">
+<div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-500">credit_card</span>
+</div>
+<span class="font-medium">支付宝</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Date Picker -->
+<div>
+<label class="block font-label-md text-outline mb-2">日期</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">calendar_today</span>
+<input class="w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-rose-100/50 focus:ring-rose-200 focus:border-rose-300 text-on-surface-variant font-body-md" type="date" value="2023-11-24"/>
+</div>
+</div>
+<!-- Note Field -->
+<div>
+<label class="block font-label-md text-outline mb-2">备注（选填）</label>
+<textarea class="w-full p-4 bg-white rounded-xl border border-rose-100/50 focus:ring-rose-200 focus:border-rose-300 text-on-surface-variant resize-none" placeholder="这笔钱花在哪里了？" rows="3"></textarea>
+</div>
+</div>
+<!-- Save Action -->
+<div class="pt-xl mt-auto">
+<button class="w-full py-4 rounded-full gradient-button text-white font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">save</span>
+                                保存账目
+                            </button>
+<p class="text-center text-xs text-stone-400 mt-4 font-label-md tracking-wider">安全且私密的记录</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Recently Added (Asymmetric Layout Element) -->
+<div class="mt-xxl">
+<div class="flex items-center justify-between mb-lg">
+<h3 class="font-h3 text-h3 text-on-surface">最近活动</h3>
+<button class="text-rose-400 font-semibold text-sm hover:underline">查看历史记录</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="soft-card p-md rounded-xl flex items-center gap-3 border border-rose-100/10">
+<div class="w-10 h-10 rounded-full bg-rose-100/50 flex items-center justify-center text-rose-500">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div>
+<p class="text-sm font-bold">优衣库</p>
+<p class="text-xs text-stone-400">今天, 2:15 PM</p>
+</div>
+<div class="ml-auto text-right">
+<p class="text-sm font-bold text-rose-500">-¥299.00</p>
+</div>
+</div>
+<div class="soft-card p-md rounded-xl flex items-center gap-3 border border-rose-100/10 opacity-70">
+<div class="w-10 h-10 rounded-full bg-rose-100/50 flex items-center justify-center text-rose-500">
+<span class="material-symbols-outlined">coffee</span>
+</div>
+<div>
+<p class="text-sm font-bold">星巴克</p>
+<p class="text-xs text-stone-400">今天, 9:05 AM</p>
+</div>
+<div class="ml-auto text-right">
+<p class="text-sm font-bold text-rose-500">-¥38.00</p>
+</div>
+</div>
+<div class="soft-card p-md rounded-xl flex items-center gap-3 border border-rose-100/10 opacity-50">
+<div class="w-10 h-10 rounded-full bg-green-100/50 flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<div>
+<p class="text-sm font-bold">工资转账</p>
+<p class="text-xs text-stone-400">昨天</p>
+</div>
+<div class="ml-auto text-right">
+<p class="text-sm font-bold text-green-600">+¥15,000</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-lg flex items-center justify-around border-t border-rose-100/20 z-50">
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-medium">首页</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-rose-500">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="text-[10px] font-bold">记账</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-[10px] font-medium">统计</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">我的</span>
+</button>
+</nav>
+</body></html>

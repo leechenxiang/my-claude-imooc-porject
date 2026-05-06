@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>注册账号 - 财务管家</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#1b1c1c",
+                        "on-secondary-fixed-variant": "#4d4068",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#deccfd",
+                        "tertiary-fixed-dim": "#ffb2bd",
+                        "primary-fixed-dim": "#fbb3c1",
+                        "outline": "#837375",
+                        "on-secondary-fixed": "#21143a",
+                        "on-secondary-container": "#62547e",
+                        "on-primary-fixed": "#360c19",
+                        "on-tertiary-fixed-variant": "#7d283c",
+                        "tertiary-fixed": "#ffd9dd",
+                        "tertiary-container": "#ffb7c1",
+                        "surface-container-low": "#f5f3f3",
+                        "secondary-fixed": "#eaddff",
+                        "on-primary-fixed-variant": "#6b3743",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#9b4053",
+                        "background": "#fbf9f8",
+                        "surface-bright": "#fbf9f8",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#8f364a",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#303030",
+                        "on-tertiary-fixed": "#400014",
+                        "surface-container-highest": "#e4e2e2",
+                        "surface-container-high": "#eae8e7",
+                        "on-surface-variant": "#514345",
+                        "surface": "#fbf9f8",
+                        "primary": "#864e5a",
+                        "inverse-on-surface": "#f2f0f0",
+                        "on-primary-container": "#7b4551",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#d6c2c4",
+                        "inverse-primary": "#fbb3c1",
+                        "surface-dim": "#dbd9d9",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e4e2e2",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#ffd9df",
+                        "on-background": "#1b1c1c",
+                        "secondary-fixed-dim": "#d0bfef",
+                        "error": "#ba1a1a",
+                        "surface-container": "#efeded",
+                        "primary-container": "#ffb7c5",
+                        "surface-tint": "#864e5a",
+                        "secondary": "#655781"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "margin": "20px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Plus Jakarta Sans"],
+                        "h3": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "price-display": ["Plus Jakarta Sans"],
+                        "h1": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "h2": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "price-display": ["28px", {"lineHeight": "1.1", "fontWeight": "700"}],
+                        "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-brand-gradient {
+            background: linear-gradient(135deg, #FFB7C5 0%, #C9B8E8 100%);
+        }
+        .bg-soft-glow {
+            background: radial-gradient(circle at top right, rgba(255, 183, 197, 0.15), transparent),
+                        radial-gradient(circle at bottom left, rgba(201, 184, 232, 0.15), transparent);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex items-center justify-center p-margin bg-soft-glow">
+<div class="w-full max-w-md">
+<!-- Brand Logo Header -->
+<div class="text-center mb-xl">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface-container-lowest shadow-[0_8px_32px_rgba(201,184,232,0.15)] mb-lg">
+<span class="text-3xl">💰</span>
+</div>
+<h2 class="font-h1 text-h1 bg-gradient-to-r from-[#FFB7C5] to-[#C9B8E8] bg-clip-text text-transparent mb-sm">财务管家</h2>
+</div>
+<!-- Registration Card -->
+<div class="bg-surface-container-lowest rounded-xl p-xl shadow-[0_4px_24px_rgba(201,184,232,0.08)] border border-outline-variant/30">
+<div class="mb-lg">
+<h1 class="font-h2 text-h2 text-on-surface mb-xs">注册账号</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">加入财务管家，开启智能理财之旅</p>
+</div>
+<form class="space-y-lg">
+<!-- Username Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-xs">用户名</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">person</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-container/50 focus:border-primary transition-all placeholder:text-outline/50" placeholder="请输入您的用户名" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-xs">设置密码</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock</span>
+<input class="w-full pl-12 pr-12 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-container/50 focus:border-primary transition-all placeholder:text-outline/50" placeholder="请输入登录密码" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Confirm Password Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-xs">确认密码</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock_reset</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-container/50 focus:border-primary transition-all placeholder:text-outline/50" placeholder="请再次输入登录密码" type="password"/>
+</div>
+</div>
+<!-- Terms and Conditions -->
+<div class="flex items-start gap-2 px-1">
+<input class="mt-1 w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary/20" id="terms" type="checkbox"/>
+<label class="font-body-sm text-body-sm text-on-surface-variant" for="terms">
+                        我已阅读并同意 <a class="text-primary font-semibold hover:underline" href="#">服务协议</a> 与 <a class="text-primary font-semibold hover:underline" href="#">隐私政策</a>
+</label>
+</div>
+<!-- Primary Button -->
+<button class="w-full py-4 rounded-full bg-brand-gradient text-white font-label-md text-base shadow-[0_8px_20px_rgba(251,179,193,0.3)] hover:opacity-90 active:scale-[0.98] transition-all" type="submit">
+                    立即注册
+                </button>
+</form>
+<!-- Secondary Link -->
+<div class="mt-xl text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    已有账号？ <a class="text-primary font-bold hover:underline" href="#">立即登录</a>
+</p>
+</div>
+</div>
+<!-- Decor Elements -->
+<div class="mt-xl flex justify-center gap-xl opacity-40">
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">security</span>
+</div>
+<span class="font-label-md text-[10px]">银行级加密</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">verified_user</span>
+</div>
+<span class="font-label-md text-[10px]">合规存管</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">cloud_done</span>
+</div>
+<span class="font-label-md text-[10px]">实时同步</span>
+</div>
+</div>
+</div>
+</body></html>

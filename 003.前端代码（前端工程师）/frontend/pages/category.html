@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分类管理 - 财务管家</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #FFF9F5;
+    }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+
+    .header-gradient {
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%) !important;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(255, 183, 197, 0.15);
+    }
+
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #FFF0F3;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .category-icon {
+      font-size: 24px;
+    }
+
+    .category-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      color: #1B1C1C;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-button.active {
+      background: #FFB7C5;
+      color: white;
+    }
+
+    .tab-button:not(.active) {
+      background: white;
+      color: #514345;
+      border: 1px solid #E5E5E5;
+    }
+
+    .btn-add {
+      width: 100%;
+      padding: 14px;
+      background: white;
+      border: 2px dashed #FFB7C5;
+      border-radius: 12px;
+      color: #FF8FA3;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add:hover {
+      background: #FFF0F3;
+    }
+
+    .emoji-picker {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px;
+      padding: 12px;
+      background: white;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+
+    .emoji-item {
+      font-size: 24px;
+      text-align: center;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .emoji-item:hover {
+      background: #FFF0F3;
+    }
+
+    .fab-button {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(255, 143, 163, 0.4);
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #8E8E8E;
+    }
+
+    .nav-item.active {
+      background: #FFF0F3;
+      color: #FF8FA3;
+    }
+  </style>
+</head>
+<body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 90px;">
+  <!-- 顶部 -->
+  <div class="header-gradient pt-6 pb-8 px-5 rounded-b-2xl">
+    <div style="color: white; display: flex; align-items: center;">
+      <span style="font-size: 20px; font-weight: 600;">分类管理</span>
+    </div>
+  </div>
+
+  <div style="padding: 20px;">
+    <!-- 标签切换 -->
+    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+      <button class="tab-button active" onclick="switchTab('expense')" id="expenseTab">支出</button>
+      <button class="tab-button" onclick="switchTab('income')" id="incomeTab">收入</button>
+    </div>
+
+    <!-- 分类列表 -->
+    <div id="categoryList" class="card" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+    </div>
+
+    <!-- 添加分类按钮 -->
+    <button class="btn-add" onclick="showAddModal()">
+      + 添加分类
+    </button>
+  </div>
+
+  <!-- 悬浮按钮 -->
+  <a href="add_record.html" class="fab-button">
+    <svg t="1777462897685" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1642" width="24" height="24"><path d="M612.37248 411.62752V30.208h-200.74496v381.41952H30.208v200.74496h381.41952v381.41952h200.74496V612.37248h381.41952v-200.74496z" p-id="1643" fill="#ffffff"></path></svg>
+  </a>
+
+  <!-- 底部导航 -->
+  <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #EFEDED; display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: 24px; z-index: 50;">
+    <a href="dashboard.html" class="nav-item">
+      <span>首页</span>
+    </a>
+    <a href="statistics.html" class="nav-item">
+      <span>统计</span>
+    </a>
+    <div style="width: 56px;"></div>
+    <a href="transaction_history.html" class="nav-item">
+      <span>明细</span>
+    </a>
+    <a href="settings.html" class="nav-item active">
+      <span>设置</span>
+    </a>
+  </nav>
+
+  <!-- 添加/编辑分类弹窗 -->
+  <div id="categoryModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 360px;">
+      <h3 id="modalTitle" style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">添加分类</h3>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">选择图标</label>
+        <div class="emoji-picker" id="emojiPicker">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">分类名称</label>
+        <input type="text" id="categoryNameInput" class="input-field" placeholder="请输入分类名称" style="width: 100%; padding: 12px 16px; background: #F5F3F3; border-radius: 12px; border: 1px solid #E5E5E5; outline: none; font-size: 16px;">
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+        <button onclick="saveCategory()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 100%); color: white; font-weight: 600; border-radius: 12px; border: none; cursor: pointer;">保存</button>
+        <button onclick="closeModal()" style="flex: 1; padding: 14px; background: #F5F3F3; color: #514345; font-weight: 500; border-radius: 12px; border: none; cursor: pointer;">取消</button>
+      </div>
+
+      <button id="deleteBtn" onclick="deleteCategory()" style="width: 100%; padding: 12px; background: #FFF0F3; color: #FFA09B; font-weight: 500; border-radius: 12px; border: none; cursor: pointer; display: none;">删除此分类</button>
+    </div>
+  </div>
+
+  <script>
+    const expenseEmojis = ['🚗', '🍚', '🛒', '🎮', '👗', '💄', '🏠', '📱', '💊', '🎁', '📚', '☕', '✈️', '🎾', '💇', '🛠'];
+    const incomeEmojis = ['💰', '💵', '💼', '📈', '🎁', '💳', '🪙', '🏦', '📝', '🎯', '🧾', '💎', '🤝', '📊', '👥', '🏠'];
+
+    const defaultExpense = [
+      { id: 1, emoji: '🚗', name: '交通' },
+      { id: 2, emoji: '🍚', name: '餐饮' },
+      { id: 3, emoji: '🛒', name: '购物' },
+      { id: 4, emoji: '🏠', name: '居家' },
+      { id: 5, emoji: '📱', name: '通讯' },
+      { id: 6, emoji: '🎮', name: '娱乐' }
+    ];
+
+    const defaultIncome = [
+      { id: 1, emoji: '💰', name: '工资' },
+      { id: 2, emoji: '💵', name: '劳务' },
+      { id: 3, emoji: '💼', name: '外快' },
+      { id: 4, emoji: '🎁', name: '礼金' },
+      { id: 5, emoji: '💳', name: '退款' }
+    ];
+
+    let expenseCategories = JSON.parse(localStorage.getItem('expense_categories')) || defaultExpense;
+    let incomeCategories = JSON.parse(localStorage.getItem('income_categories')) || defaultIncome;
+    let currentTab = 'expense';
+    let editingId = null;
+    let selectedEmoji = '🚗';
+
+    // 初始化emoji选择器
+    const emojiPicker = document.getElementById('emojiPicker');
+    expenseEmojis.forEach(emoji => {
+      const span = document.createElement('span');
+      span.className = 'emoji-item';
+      span.textContent = emoji;
+      span.onclick = () => selectEmoji(emoji);
+      emojiPicker.appendChild(span);
+    });
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('expenseTab').className = tab === 'expense' ? 'tab-button active' : 'tab-button';
+      document.getElementById('incomeTab').className = tab === 'income' ? 'tab-button active' : 'tab-button';
+
+      // 切换emoji列表
+      emojiPicker.innerHTML = '';
+      const emojis = tab === 'expense' ? expenseEmojis : incomeEmojis;
+      emojis.forEach(emoji => {
+        const span = document.createElement('span');
+        span.className = 'emoji-item';
+        span.textContent = emoji;
+        span.onclick = () => selectEmoji(emoji);
+        emojiPicker.appendChild(span);
+      });
+
+      selectedEmoji = tab === 'expense' ? '🚗' : '💰';
+      renderCategories();
+    }
+
+    function renderCategories() {
+      const list = document.getElementById('categoryList');
+      list.innerHTML = '';
+      const categories = currentTab === 'expense' ? expenseCategories : incomeCategories;
+
+      categories.forEach(category => {
+        const div = document.createElement('div');
+        div.className = 'category-item';
+        div.onclick = () => editCategory(category.id);
+        div.innerHTML = `
+          <span class="category-icon">${category.emoji}</span>
+          <span class="category-name">${category.name}</span>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function selectEmoji(emoji) {
+      selectedEmoji = emoji;
+      document.querySelectorAll('.emoji-item').forEach(item => {
+        item.style.background = item.textContent === emoji ? '#FFF0F3' : 'transparent';
+      });
+    }
+
+    function showAddModal() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '添加分类';
+      document.getElementById('categoryNameInput').value = '';
+      selectedEmoji = currentTab === 'expense' ? '🚗' : '💰';
+      document.getElementById('categoryModal').style.display = 'flex';
+      document.getElementById('deleteBtn').style.display = 'none';
+      selectEmoji(selectedEmoji);
+    }
+
+    function editCategory(id) {
+      const categories = currentTab === 'expense' ? expenseCategories : incomeCategories;
+      const category = categories.find(c => c.id === id);
+      if (category) {
+        editingId = id;
+        document.getElementById('modalTitle').textContent = '编辑分类';
+        document.getElementById('categoryNameInput').value = category.name;
+        selectedEmoji = category.emoji;
+        document.getElementById('categoryModal').style.display = 'flex';
+        document.getElementById('deleteBtn').style.display = 'block';
+        selectEmoji(category.emoji);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('categoryModal').style.display = 'none';
+    }
+
+    function saveCategory() {
+      const name = document.getElementById('categoryNameInput').value.trim();
+      if (!name) {
+        alert('请输入分类名称');
+        return;
+      }
+
+      const categories = currentTab === 'expense' ? expenseCategories : incomeCategories;
+
+      if (editingId) {
+        const category = categories.find(c => c.id === editingId);
+        if (category) {
+          category.name = name;
+          category.emoji = selectedEmoji;
+        }
+      } else {
+        categories.push({
+          id: Date.now(),
+          emoji: selectedEmoji,
+          name: name
+        });
+      }
+
+      if (currentTab === 'expense') {
+        localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
+      } else {
+        localStorage.setItem('income_categories', JSON.stringify(incomeCategories));
+      }
+
+      renderCategories();
+      closeModal();
+    }
+
+    function deleteCategory() {
+      if (editingId && confirm('确定要删除这个分类吗？')) {
+        const categories = currentTab === 'expense' ? expenseCategories : incomeCategories;
+        const filtered = categories.filter(c => c.id !== editingId);
+
+        if (currentTab === 'expense') {
+          expenseCategories = filtered;
+          localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
+        } else {
+          incomeCategories = filtered;
+          localStorage.setItem('income_categories', JSON.stringify(incomeCategories));
+        }
+
+        renderCategories();
+        closeModal();
+      }
+    }
+
+    // 初始渲染
+    renderCategories();
+  </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设置 - 财务管家</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #FFF9F5;
+    }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+
+    .header-gradient {
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%) !important;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(255, 183, 197, 0.15);
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #EFEDED;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-item:hover {
+      background: #FFF0F3;
+      margin: 0 -16px;
+      padding: 14px 16px;
+    }
+
+    .setting-item span:first-child {
+      color: #FF8FA3;
+      margin-right: 12px;
+    }
+
+    .setting-item span.flex-1 {
+      color: #1B1C1C;
+    }
+
+    .setting-item .chevron {
+      color: #8E8E8E;
+    }
+
+    .btn-logout {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255, 160, 155, 0.1);
+      color: #FFA09B;
+      font-weight: 600;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 160, 155, 0.2);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #8E8E8E;
+    }
+
+    .nav-item.active {
+      background: #FFF0F3;
+      color: #FF8FA3;
+    }
+
+    .fab-button {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(255, 143, 163, 0.4);
+      z-index: 100;
+    }
+
+    .fab-button:hover {
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 12px 28px rgba(255, 143, 163, 0.45);
+    }
+  </style>
+</head>
+<body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 10px;">
+  <!-- 顶部 -->
+  <div class="header-gradient pt-6 pb-8 px-5 rounded-b-2xl">
+    <div style="color: white; display: flex; align-items: center;">
+      <span style="font-size: 20px; font-weight: 600;">设置</span>
+    </div>
+  </div>
+
+  <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+
+  <div style="padding: 20px;">
+    <!-- 用户信息 -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer;" onclick="document.getElementById('avatarInput').click()">
+          <img id="avatarImg" style="width: 100%; height: 100%; object-fit: cover; background: linear-gradient(135deg, #FFB7C5 0%, #C9B8E8 100%);">
+          <span id="avatarPlaceholder" style="font-size: 28px; color: white;" class="material-symbols-outlined">person</span>
+        </div>
+        <div>
+          <p style="font-weight: 600; color: #1B1C1C;">用户名</p>
+          <p style="font-size: 14px; color: #8E8E8E;">注册于 2026-04-22</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设置列表 -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="setting-item" onclick="location.href='account.html'">
+        <span class="flex-1">账户管理</span>
+      </div>
+      <div class="setting-item" onclick="location.href='category.html'">
+        <span class="flex-1">分类管理</span>
+      </div>
+    </div>
+
+    <!-- 版本 -->
+    <div style="text-align: center; padding: 16px; color: #8E8E8E; font-size: 14px;">
+    </div>
+
+    <!-- 退出登录 -->
+    <a href="./login.html" class="btn-logout" style="display: block; text-align: center; text-decoration: none;">
+      退出登录
+    </a>
+  </div>
+
+  <!-- 悬浮按钮 -->
+  <a href="add_record.html" class="fab-button">
+    <svg t="1777462897685" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1642" width="24" height="24"><path d="M612.37248 411.62752V30.208h-200.74496v381.41952H30.208v200.74496h381.41952v381.41952h200.74496V612.37248h381.41952v-200.74496z" p-id="1643" fill="#ffffff"></path></svg>
+  </a>
+
+  <!-- 底部导航 -->
+  <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #EFEDED; display: flex; justify-content: space-around; padding: 12px 0; padding-bottom: 24px; z-index: 50;">
+    <a href="dashboard.html" class="nav-item">
+      <span>首页</span>
+    </a>
+    <a href="statistics.html" class="nav-item">
+      <span>统计</span>
+    </a>
+    <div style="width: 56px;"></div>
+    <a href="transaction_history.html" class="nav-item">
+      <span>明细</span>
+    </a>
+    <a href="settings.html" class="nav-item active">
+      <span>设置</span>
+    </a>
+  </nav>
+
+  <script>
+    // 头像上传预览
+    const avatarInput = document.getElementById('avatarInput');
+    const avatarImg = document.getElementById('avatarImg');
+    const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+
+    avatarInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          avatarImg.src = event.target.result;
+          avatarImg.style.display = 'block';
+          avatarPlaceholder.style.display = 'none';
+          // 保存到 localStorage
+          localStorage.setItem('user_avatar', event.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 加载已保存的头像
+    const savedAvatar = localStorage.getItem('user_avatar');
+    if (savedAvatar) {
+      avatarImg.src = savedAvatar;
+      avatarImg.style.display = 'block';
+      avatarPlaceholder.style.display = 'none';
+    }
+  </script>
+</body>
+</html>

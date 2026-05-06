@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - 财务管家</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* 强制使用设计系统颜色 - 解决刷新颜色变淡问题 */
+    :root {
+      --primary: #FFB7C5 !important;
+      --primary-dark: #FF8FA3 !important;
+      --income: #7DD3C0 !important;
+      --expense: #FFA09B !important;
+      --accent: #C9B8E8 !important;
+      --bg-cream: #FFF9F5 !important;
+      --bg-pale-pink: #FFF0F3 !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%) !important;
+      min-height: 100vh;
+    }
+
+    /* 确保渐变始终加载 */
+    .bg-gradient-to-br {
+      background: linear-gradient(135deg, #FFB7C5 0%, #FFE4EC 50%, #C9B8E8 100%) !important;
+    }
+
+    /* 注册链接hover效果 */
+    .register-link {
+      color: #FF8FA3;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .register-link:hover {
+      color: #FF6B8A;
+      text-decoration: underline;
+    }
+
+    /* 输入框样式 */
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      background: #F5F3F3;
+      border-radius: 12px;
+      border: 1px solid #E5E5E5;
+      outline: none;
+      transition: all 0.2s ease;
+      font-size: 16px;
+    }
+
+    .input-field:focus {
+      border-color: #FFB7C5;
+      box-shadow: 0 0 0 3px rgba(255, 183, 197, 0.2);
+    }
+
+    .input-field::placeholder {
+      color: #A0A0A0;
+    }
+
+    /* 登录按钮 */
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 100%);
+      color: white;
+      font-weight: 600;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 16px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(255, 143, 163, 0.4);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;">
+  <div style="width: 100%; max-width: 360px;">
+    <!-- 标题 -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="font-size: 28px; font-weight: 700; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">财务管家</h1>
+    </div>
+
+    <!-- 登录表单 -->
+    <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px rgba(255, 143, 163, 0.25);">
+      <h2 style="font-size: 20px; font-weight: 600; color: #1B1C1C; margin-bottom: 20px;">登录</h2>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">用户名</label>
+          <input type="text" class="input-field" placeholder="请输入用户名">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">密码</label>
+          <input type="password" class="input-field" placeholder="请输入密码">
+        </div>
+
+        <button class="btn-login" onclick="location.href='dashboard.html'">
+          登录
+        </button>
+      </div>
+
+      <p style="text-align: center; font-size: 14px; color: #837375; margin-top: 20px;">
+        没有账号？
+        <a href="register.html" class="register-link">立即注册</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
