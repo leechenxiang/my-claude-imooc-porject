@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* 强制使用设计系统颜色 - 解决刷新颜色变淡问题 */
     :root {
       --primary: #FFB7C5 !important;
       --primary-dark: #FF8FA3 !important;
@@ -24,7 +23,6 @@
       min-height: 100vh;
     }
 
-    /* 登录链接hover效果 */
     .login-link {
       color: #FF8FA3;
       font-weight: 500;
@@ -37,7 +35,6 @@
       text-decoration: underline;
     }
 
-    /* 输入框样式 */
     .input-field {
       width: 100%;
       padding: 12px 16px;
@@ -58,7 +55,10 @@
       color: #A0A0A0;
     }
 
-    /* 注册按钮 */
+    .input-field.error {
+      border-color: #FFA09B;
+    }
+
     .btn-register {
       width: 100%;
       padding: 14px;
@@ -80,38 +80,79 @@
     .btn-register:active {
       transform: translateY(0);
     }
+
+    .btn-register:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      color: #FFA09B;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .success-message {
+      color: #7DD3C0;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 12px;
+    }
   </style>
 </head>
 <body style="background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;">
   <div style="width: 100%; max-width: 360px;">
-    <!-- 标题 -->
     <div style="text-align: center; margin-bottom: 32px;">
       <h1 style="font-size: 28px; font-weight: 700; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">财务管家</h1>
     </div>
 
-    <!-- 注册表单 -->
     <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px rgba(255, 143, 163, 0.25);">
       <h2 style="font-size: 20px; font-weight: 600; color: #1B1C1C; margin-bottom: 20px;">创建账号</h2>
 
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <div>
           <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">用户名</label>
-          <input type="text" class="input-field" placeholder="3-20字符">
+          <input type="text" id="username" class="input-field" placeholder="3-20字符">
+          <p id="username-error" class="error-message" style="display: none;"></p>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">昵称（可选）</label>
+          <input type="text" id="nickname" class="input-field" placeholder="你的昵称">
         </div>
 
         <div>
           <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">密码</label>
-          <input type="password" class="input-field" placeholder="6-20字符">
+          <input type="password" id="password" class="input-field" placeholder="6-20字符">
+          <p id="password-error" class="error-message" style="display: none;"></p>
         </div>
 
         <div>
           <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">确认密码</label>
-          <input type="password" class="input-field" placeholder="再次输入密码">
+          <input type="password" id="confirmPassword" class="input-field" placeholder="再次输入密码">
+          <p id="confirm-error" class="error-message" style="display: none;"></p>
         </div>
 
-        <button class="btn-register" onclick="location.href='dashboard.html'">
+        <button id="registerBtn" class="btn-register" onclick="handleRegister()">
           注册
         </button>
+
+        <p id="success-msg" class="success-message" style="display: none;"></p>
       </div>
 
       <p style="text-align: center; font-size: 14px; color: #837375; margin-top: 20px;">
@@ -120,5 +161,126 @@
       </p>
     </div>
   </div>
+
+  <script>
+    // API配置
+    const API_BASE = 'http://localhost:3001/api';
+
+    // 检查是否已登录
+    function checkLogin() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        window.location.href = 'dashboard.html';
+      }
+    }
+
+    // 验证输入
+    function validate() {
+      let valid = true;
+      const username = document.getElementById('username');
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirmPassword');
+      const usernameError = document.getElementById('username-error');
+      const passwordError = document.getElementById('password-error');
+      const confirmError = document.getElementById('confirm-error');
+
+      username.classList.remove('error');
+      password.classList.remove('error');
+      confirmPassword.classList.remove('error');
+      usernameError.style.display = 'none';
+      passwordError.style.display = 'none';
+      confirmError.style.display = 'none';
+
+      if (!username.value.trim() || username.value.length < 3) {
+        username.classList.add('error');
+        usernameError.textContent = '用户名需至少3个字符';
+        usernameError.style.display = 'block';
+        valid = false;
+      }
+
+      if (!password.value || password.value.length < 6) {
+        password.classList.add('error');
+        passwordError.textContent = '密码需至少6个字符';
+        passwordError.style.display = 'block';
+        valid = false;
+      }
+
+      if (password.value !== confirmPassword.value) {
+        confirmPassword.classList.add('error');
+        confirmError.textContent = '两次密码输入不一致';
+        confirmError.style.display = 'block';
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    // 处理注册
+    async function handleRegister() {
+      if (!validate()) return;
+
+      const username = document.getElementById('username').value.trim();
+      const nickname = document.getElementById('nickname').value.trim() || username;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('registerBtn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> 注册中...';
+
+      try {
+        const response = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password, nickname })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // 显示成功消息
+          const successMsg = document.getElementById('success-msg');
+          successMsg.textContent = '注册成功！正在跳转...';
+          successMsg.style.display = 'block';
+
+          // 保存登录信息
+          localStorage.setItem('token', data.data.token);
+          localStorage.setItem('userId', data.data.userId);
+          localStorage.setItem('username', data.data.username);
+          localStorage.setItem('nickname', data.data.nickname);
+
+          // 1秒后跳转到首页
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1000);
+        } else {
+          btn.disabled = false;
+          btn.textContent = '注册';
+
+          // 显示错误
+          const usernameError = document.getElementById('username-error');
+          usernameError.textContent = data.message || '注册失败';
+          usernameError.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('注册错误:', error);
+        btn.disabled = false;
+        btn.textContent = '注册';
+
+        alert('网络错误，请检查后端服务是否运行');
+      }
+    }
+
+    // 监听回车键
+    document.getElementById('confirmPassword').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        handleRegister();
+      }
+    });
+
+    // 页面加载时检查登录状态
+    checkLogin();
+  </script>
 </body>
 </html>

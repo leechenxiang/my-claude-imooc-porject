@@ -130,8 +130,8 @@
           <span id="avatarPlaceholder" style="font-size: 28px; color: white;" class="material-symbols-outlined">person</span>
         </div>
         <div>
-          <p style="font-weight: 600; color: #1B1C1C;">用户名</p>
-          <p style="font-size: 14px; color: #8E8E8E;">注册于 2026-04-22</p>
+          <p id="userNickname" style="font-weight: 600; color: #1B1C1C;">用户名</p>
+          <p id="userJoinDate" style="font-size: 14px; color: #8E8E8E;">注册于 ...</p>
         </div>
       </div>
     </div>
@@ -151,7 +151,7 @@
     </div>
 
     <!-- 退出登录 -->
-    <a href="./login.html" class="btn-logout" style="display: block; text-align: center; text-decoration: none;">
+    <a href="#" class="btn-logout" style="display: block; text-align: center; text-decoration: none;" onclick="handleLogout()">
       退出登录
     </a>
   </div>
@@ -179,6 +179,71 @@
   </nav>
 
   <script>
+    // API配置
+    const API_BASE = 'http://localhost:3001/api';
+
+    // 检查是否已登录
+    function checkLogin() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 加载用户信息
+    async function loadUserInfo() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/user`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // 显示昵称
+          document.getElementById('userNickname').textContent = data.data.nickname || data.data.username;
+
+          // 显示注册时间
+          const createdAt = data.data.created_at ? new Date(data.data.created_at).toLocaleDateString('zh-CN') : new Date().toLocaleDateString('zh-CN');
+          document.getElementById('userJoinDate').textContent = `注册于 ${createdAt}`;
+
+          // 保存头像
+          if (data.data.avatar_url) {
+            const avatarImg = document.getElementById('avatarImg');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            avatarImg.src = data.data.avatar_url;
+            avatarImg.style.display = 'block';
+            avatarPlaceholder.style.display = 'none';
+          }
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+      }
+    }
+
+    // 处理退出登录
+    function handleLogout() {
+      if (confirm('确定要退出登录吗？')) {
+        // 清除本地存储
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        localStorage.removeItem('nickname');
+        localStorage.removeItem('theme');
+
+        // 跳转到登录页
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 页面加载完成后执行
+    window.addEventListener('DOMContentLoaded', loadUserInfo);
+
     // 头像上传预览
     const avatarInput = document.getElementById('avatarInput');
     const avatarImg = document.getElementById('avatarImg');
