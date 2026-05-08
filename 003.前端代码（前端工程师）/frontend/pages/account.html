@@ -32,6 +32,12 @@
       padding: 12px;
       background: #FFF0F3;
       border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .account-item:hover {
+      transform: scale(1.02);
     }
 
     .account-icon {
@@ -84,6 +90,10 @@
       background: #FFF0F3;
     }
 
+    .emoji-item.selected {
+      background: #FFF0F3;
+    }
+
     .fab-button {
       position: fixed;
       bottom: 10px;
@@ -120,6 +130,22 @@
       background: #FFF0F3;
       color: #FF8FA3;
     }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      background: #F5F3F3;
+      border-radius: 12px;
+      border: 1px solid #E5E5E5;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #8E8E8E;
+    }
   </style>
 </head>
 <body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 90px;">
@@ -141,7 +167,7 @@
     </button>
   </div>
 
-  <!-- 悬��按钮 -->
+  <!-- 悬浮按钮 -->
   <a href="add_record.html" class="fab-button">
     <svg t="1777462897685" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1642" width="24" height="24"><path d="M612.37248 411.62752V30.208h-200.74496v381.41952H30.208v200.74496h381.41952v381.41952h200.74496V612.37248h381.41952v-200.74496z" p-id="1643" fill="#ffffff"></path></svg>
   </a>
@@ -176,7 +202,7 @@
 
       <div style="margin-bottom: 16px;">
         <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">账户名称</label>
-        <input type="text" id="accountNameInput" class="input-field" placeholder="请输入账户名称" style="width: 100%; padding: 12px 16px; background: #F5F3F3; border-radius: 12px; border: 1px solid #E5E5E5; outline: none; font-size: 16px;">
+        <input type="text" id="accountNameInput" class="input-field" placeholder="请输入账户名称">
       </div>
 
       <div style="display: flex; gap: 12px; margin-bottom: 12px;">
@@ -189,36 +215,73 @@
   </div>
 
   <script>
+    const API_BASE = 'http://localhost:3001/api';
+
     const defaultEmojis = ['💰', '💵', '🪙', '🏦', '💳', '📱', '🧾', '🎁', '🍚', '🛒', '🚗', '🏠', '💼', '📈', '💡', '❤️'];
 
-    let accounts = JSON.parse(localStorage.getItem('user_accounts')) || [
-      { id: 1, emoji: '💰', name: '现金' },
-      { id: 2, emoji: '💳', name: '微信' },
-      { id: 3, emoji: '💳', name: '支付宝' },
-      { id: 4, emoji: '🏦', name: '银行卡' }
-    ];
+    let accounts = [];
     let editingId = null;
     let selectedEmoji = '💰';
 
+    // 检查是否已登录
+    function checkLogin() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+      }
+    }
+
     // 初始化emoji选择器
-    const emojiPicker = document.getElementById('emojiPicker');
-    defaultEmojis.forEach(emoji => {
-      const span = document.createElement('span');
-      span.className = 'emoji-item';
-      span.textContent = emoji;
-      span.onclick = () => selectEmoji(emoji);
-      emojiPicker.appendChild(span);
-    });
+    function initEmojiPicker() {
+      const emojiPicker = document.getElementById('emojiPicker');
+      emojiPicker.innerHTML = '';
+      defaultEmojis.forEach(emoji => {
+        const span = document.createElement('span');
+        span.className = 'emoji-item';
+        span.textContent = emoji;
+        span.onclick = () => selectEmoji(emoji);
+        emojiPicker.appendChild(span);
+      });
+    }
+
+    // 加载账户
+    async function loadAccounts() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/accounts`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          accounts = data.data;
+          renderAccounts();
+        }
+      } catch (error) {
+        console.error('加载账户失败:', error);
+      }
+    }
 
     function renderAccounts() {
       const list = document.getElementById('accountList');
       list.innerHTML = '';
+
+      if (accounts.length === 0) {
+        list.innerHTML = '<div class="empty-state">暂无账户，点击添加</div>';
+        return;
+      }
+
       accounts.forEach(account => {
         const div = document.createElement('div');
         div.className = 'account-item';
         div.onclick = () => editAccount(account.id);
         div.innerHTML = `
-          <span class="account-icon">${account.emoji}</span>
+          <span class="account-icon">${account.icon}</span>
           <span class="account-name">${account.name}</span>
         `;
         list.appendChild(div);
@@ -228,7 +291,7 @@
     function selectEmoji(emoji) {
       selectedEmoji = emoji;
       document.querySelectorAll('.emoji-item').forEach(item => {
-        item.style.background = item.textContent === emoji ? '#FFF0F3' : 'transparent';
+        item.classList.toggle('selected', item.textContent === emoji);
       });
     }
 
@@ -239,6 +302,7 @@
       selectedEmoji = '💰';
       document.getElementById('accountModal').style.display = 'flex';
       document.getElementById('deleteBtn').style.display = 'none';
+      initEmojiPicker();
       selectEmoji('💰');
     }
 
@@ -248,19 +312,11 @@
         editingId = id;
         document.getElementById('modalTitle').textContent = '编辑账户';
         document.getElementById('accountNameInput').value = account.name;
-        selectedEmoji = account.emoji;
+        selectedEmoji = account.icon;
         document.getElementById('accountModal').style.display = 'flex';
         document.getElementById('deleteBtn').style.display = 'block';
-        selectEmoji(account.emoji);
-      }
-    }
-
-    function deleteAccount() {
-      if (editingId && confirm('确定要删除这个账户吗？')) {
-        accounts = accounts.filter(a => a.id !== editingId);
-        localStorage.setItem('user_accounts', JSON.stringify(accounts));
-        renderAccounts();
-        closeModal();
+        initEmojiPicker();
+        selectEmoji(account.icon);
       }
     }
 
@@ -268,34 +324,90 @@
       document.getElementById('accountModal').style.display = 'none';
     }
 
-    function saveAccount() {
+    async function saveAccount() {
+      const token = localStorage.getItem('token');
       const name = document.getElementById('accountNameInput').value.trim();
+
       if (!name) {
         alert('请输入账户名称');
         return;
       }
 
-      if (editingId) {
-        const account = accounts.find(a => a.id === editingId);
-        if (account) {
-          account.name = name;
-          account.emoji = selectedEmoji;
-        }
-      } else {
-        accounts.push({
-          id: Date.now(),
-          emoji: selectedEmoji,
-          name: name
-        });
-      }
+      const accountData = {
+        name: name,
+        icon: selectedEmoji
+      };
 
-      localStorage.setItem('user_accounts', JSON.stringify(accounts));
-      renderAccounts();
-      closeModal();
+      try {
+        let response;
+        if (editingId) {
+          response = await fetch(`${API_BASE}/accounts/${editingId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(accountData)
+          });
+        } else {
+          response = await fetch(`${API_BASE}/accounts`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(accountData)
+          });
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          closeModal();
+          loadAccounts();
+        } else {
+          alert(data.message || '保存失败');
+        }
+      } catch (error) {
+        console.error('保存账户失败:', error);
+        alert('保存失败，请重试');
+      }
+    }
+
+    async function deleteAccount() {
+      if (!editingId) return;
+
+      if (confirm('确定要删除这个账户吗？')) {
+        const token = localStorage.getItem('token');
+
+        try {
+          const response = await fetch(`${API_BASE}/accounts/${editingId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            closeModal();
+            loadAccounts();
+          } else {
+            alert(data.message || '删除失败');
+          }
+        } catch (error) {
+          console.error('删除账户失败:', error);
+          alert('删除失败，请重试');
+        }
+      }
     }
 
     // 初始渲染
-    renderAccounts();
+    window.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadAccounts();
+    });
   </script>
 </body>
 </html>

@@ -204,6 +204,9 @@
   </nav>
 
   <script>
+    // API配置
+    const API_BASE = 'http://localhost:3001/api';
+
     // 检查是否已登录
     function checkLogin() {
       const token = localStorage.getItem('token');
@@ -212,8 +215,82 @@
       }
     }
 
+    // 格式化金额
+    function formatAmount(amount) {
+      var num = parseFloat(amount) || 0;
+      return num.toLocaleString('zh-CN');
+    }
+
+    // 加载首页数据
+    async function loadHomeData() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/home`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // 更新概览卡片
+          document.querySelector('.card:nth-child(1) p:last-child').textContent = '¥' + formatAmount(data.data.income);
+          document.querySelector('.card:nth-child(2) p:last-child').textContent = '¥' + formatAmount(data.data.expense);
+          document.querySelector('.card:nth-child(3) p:last-child').textContent = '¥' + formatAmount(data.data.balance);
+
+          // 更新月份
+          document.querySelector('.header-gradient p').textContent = data.data.year + '年' + data.data.month + '月';
+
+          // 更新分类支出
+          var categoryContainer = document.querySelectorAll('.card')[3];
+          if (data.data.topCategories && data.data.topCategories.length > 0) {
+            var categoriesHtml = '';
+            for (var i = 0; i < data.data.topCategories.length; i++) {
+              var cat = data.data.topCategories[i];
+              categoriesHtml += '<div class="category-item">' +
+                '<span style="font-size: 20px;">' + (cat.icon || '📦') + '</span>' +
+                '<span style="flex: 1; font-size: 14px;">' + cat.name + '</span>' +
+                '<span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥' + formatAmount(cat.total) + '</span>' +
+              '</div>';
+            }
+            categoryContainer.innerHTML = categoriesHtml;
+          }
+
+          // 更新最近记账（第5个card，索引为4）
+          var transactionContainer = document.querySelectorAll('.card')[4];
+          if (data.data.recentTransactions && data.data.recentTransactions.length > 0) {
+            var transactionsHtml = '';
+            for (var i = 0; i < data.data.recentTransactions.length; i++) {
+              var tx = data.data.recentTransactions[i];
+              var txDate = new Date(tx.transaction_date);
+              var dateStr = (txDate.getMonth() + 1) + '/' + txDate.getDate();
+              var amountClass = tx.type_name === 'income' ? '#7DD3C0' : '#FFA09B';
+              var amountPrefix = tx.type_name === 'income' ? '+' : '-';
+              transactionsHtml += '<div class="transaction-item">' +
+                '<span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">' + (tx.category_icon || '📦') + '</span>' +
+                '<div style="flex: 1;">' +
+                  '<p style="font-size: 14px; font-weight: 500;">' + tx.category_name + '</p>' +
+                  '<p style="font-size: 12px; color: #8E8E8E;">' + dateStr + '</p>' +
+                '</div>' +
+                '<span style="font-size: 14px; font-weight: 600; color: ' + amountClass + ';">' + amountPrefix + '¥' + formatAmount(tx.amount) + '</span>' +
+              '</div>';
+            }
+            transactionContainer.innerHTML = transactionsHtml;
+          }
+        }
+      } catch (error) {
+        console.error('加载首页数据失败:', error);
+      }
+    }
+
     // 页面加载时检查登录状态
     checkLogin();
+
+    // 页面加载后获取数据
+    window.addEventListener('DOMContentLoaded', loadHomeData);
   </script>
 </body>
 </html>

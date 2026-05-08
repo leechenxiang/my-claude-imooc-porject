@@ -14,7 +14,6 @@
     }
     .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
 
-    /* 强制渐变 */
     .header-gradient {
       background: linear-gradient(135deg, #FFB7C5 0%, #FF8FA3 50%, #C9B8E8 100%) !important;
     }
@@ -45,6 +44,14 @@
 
     .category-option:active {
       transform: scale(0.95);
+    }
+
+    .category-icon {
+      font-size: 22px;
+    }
+
+    .category-name {
+      font-size: 11px;
     }
 
     .type-btn {
@@ -82,6 +89,8 @@
       background: #FFF0F3;
       border-radius: 10px;
       font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .account-chip.selected {
@@ -121,6 +130,26 @@
       box-shadow: 0 8px 20px rgba(255, 143, 163, 0.4);
     }
 
+    .btn-save:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .nav-item {
       display: flex;
       flex-direction: column;
@@ -152,6 +181,12 @@
       box-shadow: 0 8px 20px rgba(255, 143, 163, 0.4);
       z-index: 100;
     }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      color: #8E8E8E;
+    }
   </style>
 </head>
 <body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 90px;">
@@ -165,54 +200,14 @@
   <div style="padding: 20px;">
     <!-- 类型选择 -->
     <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-      <button class="type-btn expense selected" style="flex: 1;">💸 支出</button>
-      <button class="type-btn income" style="flex: 1;">💰 收入</button>
+      <button class="type-btn expense selected" onclick="switchType('expense')" id="expenseBtn">💸 支出</button>
+      <button class="type-btn income" onclick="switchType('income')" id="incomeBtn">💰 收入</button>
     </div>
 
     <!-- 分类选择 -->
     <div style="margin-bottom: 20px;">
       <h3 style="font-size: 14px; font-weight: 500; color: #514345; margin-bottom: 12px;">选择分类</h3>
-      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
-        <div class="category-option selected">
-          <span style="font-size: 22px;">🍚</span>
-          <span style="font-size: 11px;">餐饮</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">🚗</span>
-          <span style="font-size: 11px;">交通</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">🛒</span>
-          <span style="font-size: 11px;">购物</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">🎬</span>
-          <span style="font-size: 11px;">娱乐</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">🏠</span>
-          <span style="font-size: 11px;">住房</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">💊</span>
-          <span style="font-size: 11px;">医疗</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">📱</span>
-          <span style="font-size: 11px;">通讯</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">👔</span>
-          <span style="font-size: 11px;">服饰</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">🎁</span>
-          <span style="font-size: 11px;">人情</span>
-        </div>
-        <div class="category-option">
-          <span style="font-size: 22px;">📦</span>
-          <span style="font-size: 11px;">其他</span>
-        </div>
+      <div id="categoryGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
       </div>
     </div>
 
@@ -221,30 +216,27 @@
       <h3 style="font-size: 14px; font-weight: 500; color: #514345; margin-bottom: 12px;">金额</h3>
       <div style="position: relative;">
         <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 24px; color: #8E8E8E;">¥</span>
-        <input type="number" class="input-field" style="padding-left: 40px; font-size: 24px; font-weight: 700;" placeholder="0.00">
+        <input type="number" id="amountInput" class="input-field" style="padding-left: 40px; font-size: 24px; font-weight: 700;" placeholder="0.00">
       </div>
     </div>
 
     <!-- 账户 -->
     <div style="margin-bottom: 20px;">
       <h3 style="font-size: 14px; font-weight: 500; color: #514345; margin-bottom: 12px;">账户</h3>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <span class="account-chip selected">💵 现金</span>
-        <span class="account-chip">📱 微信</span>
-        <span class="account-chip">🟢 支付宝</span>
+      <div id="accountList" style="display: flex; gap: 8px; flex-wrap: wrap;">
       </div>
     </div>
 
     <!-- 备注 -->
     <div style="margin-bottom: 24px;">
       <h3 style="font-size: 14px; font-weight: 500; color: #514345; margin-bottom: 12px;">备注（可选）</h3>
-      <input type="text" class="input-field" placeholder="添加备注...">
+      <input type="text" id="remarkInput" class="input-field" placeholder="添加备注...">
     </div>
 
     <!-- 保存按钮 -->
-    <a href="dashboard.html" class="btn-save">
+    <button class="btn-save" onclick="saveTransaction()" id="saveBtn">
       保存
-    </a>
+    </button>
   </div>
 
   <!-- 底部导航 -->
@@ -263,5 +255,231 @@
       <span>设置</span>
     </a>
   </nav>
+
+  <script>
+    const API_BASE = 'http://localhost:3001/api';
+
+    let currentType = 'expense';
+    let expenseCategories = [];
+    let incomeCategories = [];
+    let accounts = [];
+    let selectedCategoryId = null;
+    let selectedAccountId = null;
+
+    // 检查是否已登录
+    function checkLogin() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 切换类型
+    function switchType(type) {
+      currentType = type;
+      document.getElementById('expenseBtn').className = type === 'expense' ? 'type-btn expense selected' : 'type-btn expense';
+      document.getElementById('incomeBtn').className = type === 'income' ? 'type-btn income selected' : 'type-btn income';
+
+      selectedCategoryId = null;
+      renderCategories();
+    }
+
+    // 加载分类
+    async function loadCategories() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        // 分别获取支出和收入分类
+        const [expenseRes, incomeRes] = await Promise.all([
+          fetch(`${API_BASE}/categories?type=expense`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/categories?type=income`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
+
+        const [expenseData, incomeData] = await Promise.all([
+          expenseRes.json(),
+          incomeRes.json()
+        ]);
+
+        if (expenseData.success && incomeData.success) {
+          expenseCategories = expenseData.data;
+          incomeCategories = incomeData.data;
+          renderCategories();
+        }
+      } catch (error) {
+        console.error('加载分类失败:', error);
+      }
+    }
+
+    // 渲染分类
+    function renderCategories() {
+      const grid = document.getElementById('categoryGrid');
+      grid.innerHTML = '';
+
+      const categories = currentType === 'expense' ? expenseCategories : incomeCategories;
+
+      if (categories.length === 0) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column: span 5;">暂无分类，请在设置中添加</div>';
+        return;
+      }
+
+      categories.forEach(cat => {
+        const div = document.createElement('div');
+        div.className = 'category-option' + (selectedCategoryId === cat.id ? ' selected' : '');
+        div.onclick = () => selectCategory(cat.id);
+        div.innerHTML = `
+          <span class="category-icon">${cat.icon}</span>
+          <span class="category-name">${cat.name}</span>
+        `;
+        grid.appendChild(div);
+      });
+
+      // 自动选择第一个
+      if (!selectedCategoryId && categories.length > 0) {
+        selectCategory(categories[0].id);
+      }
+    }
+
+    // 选择分类
+    function selectCategory(id) {
+      selectedCategoryId = id;
+      document.querySelectorAll('.category-option').forEach((el, idx) => {
+        const categories = currentType === 'expense' ? expenseCategories : incomeCategories;
+        if (categories[idx]) {
+          el.classList.toggle('selected', categories[idx].id === id);
+        }
+      });
+    }
+
+    // 加载账户
+    async function loadAccounts() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/accounts`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          accounts = data.data;
+          renderAccounts();
+        }
+      } catch (error) {
+        console.error('加载账户失败:', error);
+      }
+    }
+
+    // 渲染账户
+    function renderAccounts() {
+      const list = document.getElementById('accountList');
+      list.innerHTML = '';
+
+      if (accounts.length === 0) {
+        list.innerHTML = '<div class="empty-state">暂无账户，请在设置中添加</div>';
+        return;
+      }
+
+      accounts.forEach(account => {
+        const span = document.createElement('span');
+        span.className = 'account-chip' + (selectedAccountId === account.id ? ' selected' : '');
+        span.onclick = () => selectAccount(account.id);
+        span.textContent = `${account.icon} ${account.name}`;
+        list.appendChild(span);
+      });
+
+      // 自动选择第一个
+      if (!selectedAccountId && accounts.length > 0) {
+        selectAccount(accounts[0].id);
+      }
+    }
+
+    // 选择账户
+    function selectAccount(id) {
+      selectedAccountId = id;
+      document.querySelectorAll('.account-chip').forEach((el, idx) => {
+        if (accounts[idx]) {
+          el.classList.toggle('selected', accounts[idx].id === id);
+        }
+      });
+    }
+
+    // 保存交易
+    async function saveTransaction() {
+      const token = localStorage.getItem('token');
+      const amount = parseFloat(document.getElementById('amountInput').value);
+      const remark = document.getElementById('remarkInput').value.trim();
+
+      if (!amount || amount <= 0) {
+        alert('请输入有效金额');
+        return;
+      }
+
+      if (!selectedCategoryId) {
+        alert('请选择分类');
+        return;
+      }
+
+      if (!selectedAccountId) {
+        alert('请选择账户');
+        return;
+      }
+
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> 保存中...';
+
+      const transactionData = {
+        type: currentType,
+        category_id: selectedCategoryId,
+        account_id: selectedAccountId,
+        amount: amount,
+        remark: remark,
+        date: new Date().toISOString()
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/transactions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(transactionData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // 跳转到首页
+          window.location.href = 'dashboard.html';
+        } else {
+          btn.disabled = false;
+          btn.textContent = '保存';
+          alert(data.message || '保存失败');
+        }
+      } catch (error) {
+        console.error('保存交易失败:', error);
+        btn.disabled = false;
+        btn.textContent = '保存';
+        alert('保存失败，请重试');
+      }
+    }
+
+    // 页面加载完成后初始化
+    window.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadCategories();
+      loadAccounts();
+    });
+  </script>
 </body>
 </html>

@@ -30,6 +30,8 @@
       border-radius: 20px;
       font-size: 14px;
       white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .chip.active {
@@ -52,6 +54,28 @@
 
     .transaction-item:last-child {
       border-bottom: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 16px;
+      color: #8E8E8E;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #FFB7C5;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .nav-item {
@@ -90,9 +114,15 @@
       transform: translateX(-50%) scale(1.05);
       box-shadow: 0 12px 28px rgba(255, 143, 163, 0.45);
     }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #8E8E8E;
+    }
   </style>
 </head>
-<body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 10px;">
+<body style="background: #FFF9F5; min-height: 100vh; padding-bottom: 90px;">
   <!-- 顶部 -->
   <div class="header-gradient pt-6 pb-8 px-5 rounded-b-2xl">
     <div style="color: white; display: flex; align-items: center;">
@@ -102,60 +132,23 @@
 
   <!-- 筛选 -->
   <div style="padding: 16px 20px; display: flex; gap: 8px; overflow-x: auto;">
-    <span class="chip active">全部</span>
-    <span class="chip">支出</span>
-    <span class="chip">收入</span>
+    <span class="chip active" onclick="filterByType('all')" id="filterAll">全部</span>
+    <span class="chip" onclick="filterByType('expense')" id="filterExpense">支出</span>
+    <span class="chip" onclick="filterByType('income')" id="filterIncome">收入</span>
   </div>
 
   <!-- 交易列表 -->
-  <div style="padding: 0 20px;">
-    <div style="font-size: 14px; color: #8E8E8E; margin-bottom: 12px;">4月</div>
-    <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
-      <div class="transaction-item">
-        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🍚</span>
-        <div style="flex: 1;">
-          <p style="font-size: 14px; font-weight: 500;">餐饮</p>
-          <p style="font-size: 12px; color: #8E8E8E;">4/29</p>
-        </div>
-        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥58</span>
-      </div>
-      <div class="transaction-item">
-        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🚗</span>
-        <div style="flex: 1;">
-          <p style="font-size: 14px; font-weight: 500; margin-right: 12px;">交通</p>
-          <p style="font-size: 12px; color: #8E8E8E;">4/28</p>
-        </div>
-        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥26</span>
-      </div>
-      <div class="transaction-item">
-        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">💰</span>
-        <div style="flex: 1;">
-          <p style="font-size: 14px; font-weight: 500; margin-right: 12px;">工资</p>
-          <p style="font-size: 12px; color: #8E8E8E;">4/25</p>
-        </div>
-        <span style="font-size: 14px; font-weight: 600; color: #7DD3C0;">+¥12,000</span>
-      </div>
-    </div>
+  <div id="transactionList" style="padding: 0 20px; padding-bottom: 20px;">
+  </div>
 
-    <div style="font-size: 14px; color: #8E8E8E; margin: 20px 0 12px;">3月</div>
-    <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
-      <div class="transaction-item">
-        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🛒</span>
-        <div style="flex: 1;">
-          <p style="font-size: 14px; font-weight: 500; margin-right: 12px;">购物</p>
-          <p style="font-size: 12px; color: #8E8E8E;">3/27</p>
-        </div>
-        <span style="font-size: 14px; font-weight: 600; color: #FFA09B;">-¥199</span>
-      </div>
-      <div class="transaction-item">
-        <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">🎁</span>
-        <div style="flex: 1;">
-          <p style="font-size: 14px; font-weight: 500; margin-right: 12px;">礼金</p>
-          <p style="font-size: 12px; color: #8E8E8E;">3/20</p>
-        </div>
-        <span style="font-size: 14px; font-weight: 600; color: #7DD3C0;">+¥500</span>
-      </div>
-    </div>
+  <!-- 加载中 -->
+  <div id="loading" class="loading" style="display: none;">
+    <span class="loading-spinner"></span> 加载中...
+  </div>
+
+  <!-- 没有更多 -->
+  <div id="noMore" class="loading" style="display: none;">
+    没有更多了
   </div>
 
   <!-- 悬浮按钮 -->
@@ -179,5 +172,221 @@
       <span>设置</span>
     </a>
   </nav>
+
+  <script>
+    const API_BASE = 'http://localhost:3001/api';
+
+    let currentFilter = 'all';
+    let currentPage = 1;
+    const pageSize = 20;
+    let hasMore = true;
+    let isLoading = false;
+    let allTransactions = [];
+    let lastScrollHeight = 0;
+
+    // 检查是否已登录
+    function checkLogin() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 切换筛选类型
+    function filterByType(type) {
+      currentFilter = type;
+      currentPage = 1;
+      hasMore = true;
+
+      // 更新筛选按钮样式
+      document.getElementById('filterAll').className = type === 'all' ? 'chip active' : 'chip';
+      document.getElementById('filterExpense').className = type === 'expense' ? 'chip active' : 'chip';
+      document.getElementById('filterIncome').className = type === 'income' ? 'chip active' : 'chip';
+
+      // 清空列表并重新加载
+      allTransactions = [];
+      document.getElementById('transactionList').innerHTML = '';
+      document.getElementById('noMore').style.display = 'none';
+      loadTransactions();
+    }
+
+    // 加载交易记录
+    async function loadTransactions() {
+      const token = localStorage.getItem('token');
+      if (!token || isLoading) return;
+
+      isLoading = true;
+      document.getElementById('loading').style.display = 'block';
+
+      try {
+        const url = `${API_BASE}/transactions?page=${currentPage}&pageSize=${pageSize}&type=${currentFilter}`;
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const newTransactions = data.data.transactions || [];
+
+          if (currentPage === 1) {
+            allTransactions = newTransactions;
+          } else {
+            allTransactions = [...allTransactions, ...newTransactions];
+          }
+
+          hasMore = newTransactions.length === pageSize;
+          renderTransactions();
+        }
+      } catch (error) {
+        console.error('加载交易记录失败:', error);
+      } finally {
+        isLoading = false;
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    // 渲染交易记录
+    function renderTransactions() {
+      const container = document.getElementById('transactionList');
+
+      // 筛选符合条件的交易
+      let filteredTransactions = allTransactions;
+      if (currentFilter !== 'all') {
+        filteredTransactions = allTransactions.filter(tx => tx.type_name === currentFilter);
+      }
+
+      if (filteredTransactions.length === 0) {
+        container.innerHTML = '<div class="empty-state">暂无交易记录</div>';
+        document.getElementById('noMore').style.display = 'none';
+        return;
+      }
+
+      // 按月份分组
+      const grouped = {};
+      filteredTransactions.forEach(tx => {
+        const date = new Date(tx.transaction_date);
+        const monthKey = `${date.getFullYear()}年${date.getMonth() + 1}月`;
+
+        if (!grouped[monthKey]) {
+          grouped[monthKey] = [];
+        }
+        grouped[monthKey].push(tx);
+      });
+
+      // 按月份排序（最新的在前）
+      const monthOrder = Object.keys(grouped).sort();
+
+      container.innerHTML = '';
+
+      // 从最新月份开始渲染
+      for (let i = monthOrder.length - 1; i >= 0; i--) {
+        const month = monthOrder[i];
+        const monthHtml = `<div style="font-size: 14px; color: #8E8E8E; margin-bottom: 12px;">${month}</div>`;
+        container.innerHTML += monthHtml;
+
+        const txs = grouped[month];
+        let txListHtml = '';
+
+        for (let j = txs.length - 1; j >= 0; j--) {
+          const tx = txs[j];
+          const date = new Date(tx.transaction_date);
+          const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+          const amountClass = tx.type_name === 'income' ? '#7DD3C0' : '#FFA09B';
+          const amountPrefix = tx.type_name === 'income' ? '+' : '-';
+          const amount = parseFloat(tx.amount).toLocaleString('zh-CN');
+
+          txListHtml += `
+            <div class="transaction-item">
+              <span style="width: 40px; height: 40px; background: #FFF0F3; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">${tx.category_icon || '📦'}</span>
+              <div style="flex: 1;">
+                <p style="font-size: 14px; font-weight: 500;">${tx.category_name}</p>
+                <p style="font-size: 12px; color: #8E8E8E;">${dateStr}${tx.account_name ? ' · ' + tx.account_name : ''}</p>
+              </div>
+              <span style="font-size: 14px; font-weight: 600; color: ${amountClass};">${amountPrefix}¥${amount}</span>
+            </div>
+          `;
+        }
+
+        const cardHtml = `<div class="card" style="display: flex; flex-direction: column; gap: 0; margin-bottom: 16px;">${txListHtml}</div>`;
+        container.innerHTML += cardHtml;
+      }
+
+      // 显示/隐藏"没有更多"
+      document.getElementById('noMore').style.display = hasMore ? 'none' : 'block';
+    }
+
+    // 加载更多（用于按钮点击）
+    function loadMoreTransactions() {
+      if (!hasMore || isLoading) return;
+      currentPage++;
+      loadTransactions();
+    }
+
+    // 无限滚动检测
+    function setupInfiniteScroll() {
+      let ticking = false;
+
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            // 当滚动到距离底部200px时加载更多
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+
+            if (scrollTop + clientHeight >= scrollHeight - 200) {
+              if (hasMore && !isLoading) {
+                currentPage++;
+                loadTransactions();
+              }
+            }
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+
+      // 触摸滑动检测（手机端）
+      let touchStartY = 0;
+      let touchStartX = 0;
+
+      document.addEventListener('touchstart', function(e) {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+
+      document.addEventListener('touchmove', function(e) {
+        const touchY = e.touches[0].clientY;
+        const touchX = e.touches[0].clientX;
+        const deltaY = touchStartY - touchY;
+        const deltaX = touchStartX - touchX;
+
+        // 向上滑动
+        if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
+          // 距离底部100px时加载更多
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const scrollHeight = document.documentElement.scrollHeight;
+          const clientHeight = document.documentElement.clientHeight;
+
+          if (scrollTop + clientHeight >= scrollHeight - 100) {
+            if (hasMore && !isLoading) {
+              currentPage++;
+              loadTransactions();
+            }
+          }
+        }
+      }, { passive: true });
+    }
+
+    // 页面加载完成后初始化
+    window.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadTransactions();
+      setupInfiniteScroll();
+    });
+  </script>
 </body>
 </html>

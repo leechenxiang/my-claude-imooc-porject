@@ -33,6 +33,11 @@
       background: #FFF0F3;
       border-radius: 12px;
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .category-item:hover {
+      transform: scale(1.02);
     }
 
     .category-icon {
@@ -53,6 +58,7 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
+      border: none;
     }
 
     .tab-button.active {
@@ -105,6 +111,10 @@
       background: #FFF0F3;
     }
 
+    .emoji-item.selected {
+      background: #FFF0F3;
+    }
+
     .fab-button {
       position: fixed;
       bottom: 10px;
@@ -135,6 +145,22 @@
     .nav-item.active {
       background: #FFF0F3;
       color: #FF8FA3;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      background: #F5F3F3;
+      border-radius: 12px;
+      border: 1px solid #E5E5E5;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #8E8E8E;
     }
   </style>
 </head>
@@ -198,7 +224,7 @@
 
       <div style="margin-bottom: 16px;">
         <label style="display: block; font-size: 14px; color: #514345; margin-bottom: 6px;">分类名称</label>
-        <input type="text" id="categoryNameInput" class="input-field" placeholder="请输入分类名称" style="width: 100%; padding: 12px 16px; background: #F5F3F3; border-radius: 12px; border: 1px solid #E5E5E5; outline: none; font-size: 16px;">
+        <input type="text" id="categoryNameInput" class="input-field" placeholder="请输入分类名称">
       </div>
 
       <div style="display: flex; gap: 12px; margin-bottom: 12px;">
@@ -211,50 +237,30 @@
   </div>
 
   <script>
+    const API_BASE = 'http://localhost:3001/api';
+
     const expenseEmojis = ['🚗', '🍚', '🛒', '🎮', '👗', '💄', '🏠', '📱', '💊', '🎁', '📚', '☕', '✈️', '🎾', '💇', '🛠'];
     const incomeEmojis = ['💰', '💵', '💼', '📈', '🎁', '💳', '🪙', '🏦', '📝', '🎯', '🧾', '💎', '🤝', '📊', '👥', '🏠'];
 
-    const defaultExpense = [
-      { id: 1, emoji: '🚗', name: '交通' },
-      { id: 2, emoji: '🍚', name: '餐饮' },
-      { id: 3, emoji: '🛒', name: '购物' },
-      { id: 4, emoji: '🏠', name: '居家' },
-      { id: 5, emoji: '📱', name: '通讯' },
-      { id: 6, emoji: '🎮', name: '娱乐' }
-    ];
-
-    const defaultIncome = [
-      { id: 1, emoji: '💰', name: '工资' },
-      { id: 2, emoji: '💵', name: '劳务' },
-      { id: 3, emoji: '💼', name: '外快' },
-      { id: 4, emoji: '🎁', name: '礼金' },
-      { id: 5, emoji: '💳', name: '退款' }
-    ];
-
-    let expenseCategories = JSON.parse(localStorage.getItem('expense_categories')) || defaultExpense;
-    let incomeCategories = JSON.parse(localStorage.getItem('income_categories')) || defaultIncome;
+    let expenseCategories = [];
+    let incomeCategories = [];
     let currentTab = 'expense';
     let editingId = null;
     let selectedEmoji = '🚗';
 
+    // 检查是否已登录
+    function checkLogin() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+      }
+    }
+
     // 初始化emoji选择器
-    const emojiPicker = document.getElementById('emojiPicker');
-    expenseEmojis.forEach(emoji => {
-      const span = document.createElement('span');
-      span.className = 'emoji-item';
-      span.textContent = emoji;
-      span.onclick = () => selectEmoji(emoji);
-      emojiPicker.appendChild(span);
-    });
-
-    function switchTab(tab) {
-      currentTab = tab;
-      document.getElementById('expenseTab').className = tab === 'expense' ? 'tab-button active' : 'tab-button';
-      document.getElementById('incomeTab').className = tab === 'income' ? 'tab-button active' : 'tab-button';
-
-      // 切换emoji列表
+    function initEmojiPicker() {
+      const emojiPicker = document.getElementById('emojiPicker');
       emojiPicker.innerHTML = '';
-      const emojis = tab === 'expense' ? expenseEmojis : incomeEmojis;
+      const emojis = currentTab === 'expense' ? expenseEmojis : incomeEmojis;
       emojis.forEach(emoji => {
         const span = document.createElement('span');
         span.className = 'emoji-item';
@@ -262,22 +268,66 @@
         span.onclick = () => selectEmoji(emoji);
         emojiPicker.appendChild(span);
       });
+    }
 
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('expenseTab').className = tab === 'expense' ? 'tab-button active' : 'tab-button';
+      document.getElementById('incomeTab').className = tab === 'income' ? 'tab-button active' : 'tab-button';
+
+      initEmojiPicker();
       selectedEmoji = tab === 'expense' ? '🚗' : '💰';
       renderCategories();
+    }
+
+    // 加载分类
+    async function loadCategories() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        // 分别获取支出和收入分类
+        const [expenseRes, incomeRes] = await Promise.all([
+          fetch(`${API_BASE}/categories?type=expense`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/categories?type=income`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
+
+        const [expenseData, incomeData] = await Promise.all([
+          expenseRes.json(),
+          incomeRes.json()
+        ]);
+
+        if (expenseData.success && incomeData.success) {
+          expenseCategories = expenseData.data;
+          incomeCategories = incomeData.data;
+          renderCategories();
+        }
+      } catch (error) {
+        console.error('加载分类失败:', error);
+      }
     }
 
     function renderCategories() {
       const list = document.getElementById('categoryList');
       list.innerHTML = '';
+
       const categories = currentTab === 'expense' ? expenseCategories : incomeCategories;
+
+      if (categories.length === 0) {
+        list.innerHTML = '<div class="empty-state">暂无分类，点击添加</div>';
+        return;
+      }
 
       categories.forEach(category => {
         const div = document.createElement('div');
         div.className = 'category-item';
         div.onclick = () => editCategory(category.id);
         div.innerHTML = `
-          <span class="category-icon">${category.emoji}</span>
+          <span class="category-icon">${category.icon}</span>
           <span class="category-name">${category.name}</span>
         `;
         list.appendChild(div);
@@ -287,7 +337,7 @@
     function selectEmoji(emoji) {
       selectedEmoji = emoji;
       document.querySelectorAll('.emoji-item').forEach(item => {
-        item.style.background = item.textContent === emoji ? '#FFF0F3' : 'transparent';
+        item.classList.toggle('selected', item.textContent === emoji);
       });
     }
 
@@ -298,6 +348,7 @@
       selectedEmoji = currentTab === 'expense' ? '🚗' : '💰';
       document.getElementById('categoryModal').style.display = 'flex';
       document.getElementById('deleteBtn').style.display = 'none';
+      initEmojiPicker();
       selectEmoji(selectedEmoji);
     }
 
@@ -308,10 +359,11 @@
         editingId = id;
         document.getElementById('modalTitle').textContent = '编辑分类';
         document.getElementById('categoryNameInput').value = category.name;
-        selectedEmoji = category.emoji;
+        selectedEmoji = category.icon;
         document.getElementById('categoryModal').style.display = 'flex';
         document.getElementById('deleteBtn').style.display = 'block';
-        selectEmoji(category.emoji);
+        initEmojiPicker();
+        selectEmoji(category.icon);
       }
     }
 
@@ -319,59 +371,91 @@
       document.getElementById('categoryModal').style.display = 'none';
     }
 
-    function saveCategory() {
+    async function saveCategory() {
+      const token = localStorage.getItem('token');
       const name = document.getElementById('categoryNameInput').value.trim();
+
       if (!name) {
         alert('请输入分类名称');
         return;
       }
 
-      const categories = currentTab === 'expense' ? expenseCategories : incomeCategories;
+      const categoryData = {
+        name: name,
+        icon: selectedEmoji,
+        type: currentTab
+      };
 
-      if (editingId) {
-        const category = categories.find(c => c.id === editingId);
-        if (category) {
-          category.name = name;
-          category.emoji = selectedEmoji;
+      try {
+        let response;
+        if (editingId) {
+          response = await fetch(`${API_BASE}/categories/${editingId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(categoryData)
+          });
+        } else {
+          response = await fetch(`${API_BASE}/categories`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(categoryData)
+          });
         }
-      } else {
-        categories.push({
-          id: Date.now(),
-          emoji: selectedEmoji,
-          name: name
-        });
-      }
 
-      if (currentTab === 'expense') {
-        localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
-      } else {
-        localStorage.setItem('income_categories', JSON.stringify(incomeCategories));
-      }
+        const data = await response.json();
 
-      renderCategories();
-      closeModal();
+        if (data.success) {
+          closeModal();
+          loadCategories();
+        } else {
+          alert(data.message || '保存失败');
+        }
+      } catch (error) {
+        console.error('保存分类失败:', error);
+        alert('保存失败，请重试');
+      }
     }
 
-    function deleteCategory() {
-      if (editingId && confirm('确定要删除这个分类吗？')) {
-        const categories = currentTab === 'expense' ? expenseCategories : incomeCategories;
-        const filtered = categories.filter(c => c.id !== editingId);
+    async function deleteCategory() {
+      if (!editingId) return;
 
-        if (currentTab === 'expense') {
-          expenseCategories = filtered;
-          localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
-        } else {
-          incomeCategories = filtered;
-          localStorage.setItem('income_categories', JSON.stringify(incomeCategories));
+      if (confirm('确定要删除这个分类吗？')) {
+        const token = localStorage.getItem('token');
+
+        try {
+          const response = await fetch(`${API_BASE}/categories/${editingId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            closeModal();
+            loadCategories();
+          } else {
+            alert(data.message || '删除失败');
+          }
+        } catch (error) {
+          console.error('删除分类失败:', error);
+          alert('删除失败，请重试');
         }
-
-        renderCategories();
-        closeModal();
       }
     }
 
     // 初始渲染
-    renderCategories();
+    window.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadCategories();
+    });
   </script>
 </body>
 </html>
