@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.manager.mapper.CategoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.finance.manager.entity.Category">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="type_id" property="typeId"/>
+        <result column="name" property="name"/>
+        <result column="icon" property="icon"/>
+        <result column="color" property="color"/>
+        <result column="is_system" property="isSystem"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT c.* FROM categories c
+        WHERE c.user_id = #{userId} OR c.user_id IS NULL OR c.user_id = 0
+        ORDER BY c.is_system DESC, c.sort_order
+    </select>
+
+    <!-- 查询所有分类，用于验证分类ID时使用 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM categories ORDER BY is_system DESC, sort_order
+    </select>
+
+    <select id="selectByUserIdAndType" resultMap="BaseResultMap">
+        SELECT c.* FROM categories c
+        WHERE (c.user_id = #{userId} OR c.user_id IS NULL OR c.user_id = 0)
+        AND c.type_id = #{typeId}
+        ORDER BY c.is_system DESC, c.sort_order
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM categories WHERE id = #{id}
+    </select>
+
+    <update id="update">
+        UPDATE categories
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="color != null">color = #{color}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM categories WHERE id = #{id} AND is_system = 0
+    </delete>
+
+</mapper>

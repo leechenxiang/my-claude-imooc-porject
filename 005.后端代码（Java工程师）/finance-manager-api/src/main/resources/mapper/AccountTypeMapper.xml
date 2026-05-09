@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.manager.mapper.AccountTypeMapper">
+
+    <resultMap id="BaseResultMap" type="com.finance.manager.entity.AccountType">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="icon" property="icon"/>
+        <result column="color" property="color"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM account_types ORDER BY id
+    </select>
+
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT * FROM account_types WHERE name = #{name}
+    </select>
+
+</mapper>

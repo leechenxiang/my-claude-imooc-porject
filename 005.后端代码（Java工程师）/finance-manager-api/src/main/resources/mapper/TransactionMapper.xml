@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.manager.mapper.TransactionMapper">
+
+    <resultMap id="TransactionResultMap" type="com.finance.manager.dto.TransactionVO">
+        <id column="id" property="id"/>
+        <result column="amount" property="amount"/>
+        <result column="remark" property="remark"/>
+        <result column="transaction_date" property="transactionDate"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="category_icon" property="categoryIcon"/>
+        <result column="category_color" property="categoryColor"/>
+        <result column="type_name" property="typeName"/>
+        <result column="account_name" property="accountName"/>
+        <result column="account_icon" property="accountIcon"/>
+    </resultMap>
+
+    <resultMap id="CategoryStatResultMap" type="com.finance.manager.dto.CategoryStatVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="icon" property="icon"/>
+        <result column="color" property="color"/>
+        <result column="total" property="total"/>
+    </resultMap>
+
+    <resultMap id="ExportResultMap" type="com.finance.manager.dto.ExportDataVO">
+        <result column="transaction_date" property="date"/>
+        <result column="type_name" property="type"/>
+        <result column="category_name" property="category"/>
+        <result column="account_name" property="account"/>
+        <result column="amount" property="amount"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO transactions (ledger_id, user_id, account_id, category_id, type_id, amount, remark, transaction_date)
+        VALUES (#{ledgerId}, #{userId}, #{accountId}, #{categoryId}, #{typeId}, #{amount}, #{remark}, #{transactionDate})
+    </insert>
+
+    <select id="selectByUserIdAndMonth" resultMap="TransactionResultMap">
+        SELECT t.id, t.amount, t.remark, t.transaction_date, t.created_at,
+               c.name as category_name, c.icon as category_icon, c.color as category_color,
+               ct.name as type_name, a.name as account_name, a.icon as account_icon
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        JOIN category_types ct ON t.type_id = ct.id
+        JOIN accounts a ON t.account_id = a.id
+        WHERE t.user_id = #{userId} AND t.transaction_date LIKE #{monthPrefix}
+        ORDER BY t.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectByUserIdAndTypeAndMonth" resultMap="TransactionResultMap">
+        SELECT t.id, t.amount, t.remark, t.transaction_date, t.created_at,
+               c.name as category_name, c.icon as category_icon, c.color as category_color,
+               ct.name as type_name, a.name as account_name, a.icon as account_icon
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        JOIN category_types ct ON t.type_id = ct.id
+        JOIN accounts a ON t.account_id = a.id
+        WHERE t.user_id = #{userId}
+        <if test="type != null and type != '' and type != 'all'">
+            AND ct.name = #{type}
+        </if>
+        <if test="monthPrefix != null and monthPrefix != ''">
+            AND t.transaction_date LIKE #{monthPrefix}
+        </if>
+        ORDER BY t.transaction_date DESC, t.id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countByUserIdAndTypeAndMonth" resultType="int">
+        SELECT COUNT(*)
+        FROM transactions t
+        JOIN category_types ct ON t.type_id = ct.id
+        WHERE t.user_id = #{userId}
+        <if test="type != null and type != '' and type != 'all'">
+            AND ct.name = #{type}
+        </if>
+        <if test="monthPrefix != null and monthPrefix != ''">
+            AND t.transaction_date LIKE #{monthPrefix}
+        </if>
+    </select>
+
+    <select id="sumByUserIdAndTypeAndMonth" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(t.amount), 0)
+        FROM transactions t
+        JOIN category_types ct ON t.type_id = ct.id
+        WHERE t.user_id = #{userId} AND ct.name = #{type} AND t.transaction_date LIKE #{monthPrefix}
+    </select>
+
+    <select id="selectCategoryStatsByUserIdAndYear" resultMap="CategoryStatResultMap">
+        SELECT c.id, c.name, c.icon, c.color, COALESCE(SUM(t.amount), 0) as total
+        FROM categories c
+        JOIN transactions t ON c.id = t.category_id
+        JOIN category_types ct ON t.type_id = ct.id
+        WHERE t.user_id = #{userId} AND ct.name = 'expense' AND t.transaction_date LIKE #{yearPrefix}
+        GROUP BY c.id
+        ORDER BY total DESC
+    </select>
+
+    <select id="selectForExport" resultMap="ExportResultMap">
+        SELECT t.transaction_date,
+               ct.name as type_name,
+               c.name as category_name,
+               a.name as account_name,
+               CASE WHEN ct.name = 'income' THEN t.amount ELSE -t.amount END as amount,
+               t.remark
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        JOIN category_types ct ON t.type_id = ct.id
+        JOIN accounts a ON t.account_id = a.id
+        WHERE t.user_id = #{userId} AND t.transaction_date LIKE #{yearPrefix}
+        ORDER BY t.transaction_date DESC, t.id DESC
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM transactions WHERE id = #{id}
+    </delete>
+
+</mapper>
