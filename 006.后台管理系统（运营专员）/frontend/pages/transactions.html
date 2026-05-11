@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交易记录 - 财务管家后台管理系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #FFB7C5;
+      --primary-dark: #FF8FA3;
+      --secondary: #7DD3C0;
+      --accent: #C9B8E8;
+      --danger: #FF6B6B;
+      --text: #2D2D2D;
+      --text-light: #666;
+      --text-lighter: #999;
+      --bg: #FFF5F7;
+      --card-bg: #FFFFFF;
+      --shadow: 0 4px 20px rgba(255, 183, 197, 0.15);
+      --sidebar-width: 240px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans SC', 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--card-bg);
+      border-right: 1px solid rgba(255, 183, 197, 0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255, 183, 197, 0.2); }
+    .sidebar-header h1 { font-size: 20px; color: var(--primary-dark); }
+    .sidebar-header p { font-size: 12px; color: var(--text-lighter); margin-top: 4px; }
+
+    .nav-menu { padding: 16px 0; }
+
+    .nav-item {
+      display: block;
+      padding: 14px 20px;
+      color: var(--text-light);
+      text-decoration: none;
+      transition: all 0.3s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: rgba(255, 183, 197, 0.1);
+      color: var(--primary-dark);
+      border-left-color: var(--primary);
+    }
+
+    .main { flex: 1; margin-left: var(--sidebar-width); padding: 24px; }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title { font-size: 24px; font-weight: 700; }
+
+    .btn-logout {
+      padding: 8px 16px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar select, .filter-bar input {
+      padding: 10px 14px;
+      border: 2px solid #EEE;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .filter-bar select:focus, .filter-bar input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .table-container {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    th { background: #fafafa; font-weight: 600; color: var(--text-light); font-size: 14px; }
+    td { font-size: 14px; }
+    tr:hover { background: #fafafa; }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+    }
+
+    .pagination button {
+      padding: 8px 16px;
+      border: 1px solid #eee;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pagination span { color: var(--text-light); }
+    .loading { text-align: center; padding: 40px; color: var(--text-lighter); }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>财务管家</h1>
+      <p>后台管理系统</p>
+    </div>
+    <nav class="nav-menu">
+      <a href="dashboard.html" class="nav-item">数据概览</a>
+      <a href="users.html" class="nav-item">用户管理</a>
+      <a href="transactions.html" class="nav-item active">交易记录</a>
+      <a href="statistics.html" class="nav-item">数据统计</a>
+      <a href="categories.html" class="nav-item">分类管理</a>
+      <a href="account_types.html" class="nav-item">账户类型</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <h2 class="page-title">交易记录</h2>
+      <button class="btn-logout" onclick="logout()">退出登录</button>
+    </header>
+
+    <div class="filter-bar">
+      <select id="typeFilter" onchange="filterTransactions()">
+        <option value="">全部类型</option>
+        <option value="income">收入</option>
+        <option value="expense">支出</option>
+      </select>
+      <input type="month" id="monthFilter" onchange="filterTransactions()">
+      <input type="number" id="userIdFilter" placeholder="用户ID" style="width: 100px;">
+      <button onclick="filterTransactions()" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer;">筛选</button>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>用户</th>
+            <th>类型</th>
+            <th>分类</th>
+            <th>账户</th>
+            <th>金额</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody id="transactionTable">
+          <tr><td colspan="7" class="loading">加载中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button id="prevBtn" onclick="prevPage()">上一页</button>
+      <span id="pageInfo">第 1 页</span>
+      <button id="nextBtn" onclick="nextPage()">下一页</button>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:3002';
+    let currentPage = 1;
+    let totalPages = 1;
+
+    async function checkLogin() {
+      const token = localStorage.getItem('adminToken');
+      if (!token) { window.location.href = 'login.html'; return; }
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/verify`, { headers: { 'Authorization': `Bearer ${token}` }});
+        if (!res.ok) throw new Error();
+      } catch { logout(); }
+    }
+
+    async function loadTransactions() {
+      const token = localStorage.getItem('adminToken');
+      const tbody = document.getElementById('transactionTable');
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">加载中...</td></tr>';
+
+      const type = document.getElementById('typeFilter').value;
+      const month = document.getElementById('monthFilter').value;
+      const userId = document.getElementById('userIdFilter').value;
+
+      let url = `${API_BASE}/api/admin/transactions?page=${currentPage}&pageSize=20`;
+      if (type) url += `&type=${type}`;
+      if (month) url += `&month=${month}`;
+      if (userId) url += `&userId=${userId}`;
+
+      try {
+        const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` }});
+        const result = await res.json();
+        if (result.success) {
+          totalPages = result.data.pagination.totalPages;
+          renderTransactions(result.data.transactions);
+          updatePagination();
+        }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" class="loading">加载失败</td></tr>';
+      }
+    }
+
+    function renderTransactions(list) {
+      const tbody = document.getElementById('transactionTable');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="loading">暂无数据</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(t => `
+        <tr>
+          <td>${t.transaction_date}</td>
+          <td>${t.user_username || '-'}</td>
+          <td style="color: ${t.type_name === 'income' ? '#7DD3C0' : '#FF6B6B'};">${t.type_name === 'income' ? '收入' : '支出'}</td>
+          <td>${t.category_icon} ${t.category_name}</td>
+          <td>${t.account_icon} ${t.account_name}</td>
+          <td style="color: ${t.type_name === 'income' ? '#7DD3C0' : '#FF6B6B'}; font-weight: 600;">
+            ${t.type_name === 'income' ? '+' : '-'}${parseFloat(t.amount).toLocaleString()}
+          </td>
+          <td>${t.remark || '-'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function updatePagination() {
+      document.getElementById('pageInfo').textContent = `第 ${currentPage} / ${totalPages} 页`;
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    function filterTransactions() {
+      currentPage = 1;
+      loadTransactions();
+    }
+
+    function prevPage() { if (currentPage > 1) { currentPage--; loadTransactions(); } }
+    function nextPage() { if (currentPage < totalPages) { currentPage++; loadTransactions(); } }
+
+    function logout() {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminInfo');
+      window.location.href = 'login.html';
+    }
+
+    checkLogin();
+    loadTransactions();
+  </script>
+</body>
+</html>
